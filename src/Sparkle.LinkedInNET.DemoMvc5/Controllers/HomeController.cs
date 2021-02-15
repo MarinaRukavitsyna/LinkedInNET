@@ -915,24 +915,25 @@ namespace Sparkle.LinkedInNET.DemoMvc5.Controllers
             }
         }
 
-        private async Task CreateLike(UserAuthorization user, string likeUrn, string actorUrn)
+        private async Task CreateLike(UserAuthorization user, string postUrn, string actorUrn)
         {
             try
             {
                 var createLikeRequest = new CreateLikeRequest
                 {
                     Actor = actorUrn,
-                    Object = likeUrn
+                    Object = postUrn
                 };
 
-                var like = await api.SocialActions.CreateLikeAsync(user, likeUrn, createLikeRequest);
-                await api.SocialActions.DeleteLikeAsync(user, likeUrn, actorUrn, actorUrn);
+                var like = await api.SocialActions.CreateLikeAsync(user, postUrn, createLikeRequest);
+                await api.SocialActions.DeleteLikeAsync(user, postUrn, actorUrn, actorUrn);
             }
             catch (Exception)
             {
 
             }
         }
+        
         #endregion
     }
 }
