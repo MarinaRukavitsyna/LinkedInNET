@@ -1,4 +1,4 @@
-﻿
+
 namespace Sparkle.LinkedInNET.ServiceDefinition
 {
     using System;
@@ -13,6 +13,7 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
         private readonly TextWriter text;
         private string rootNamespace = "Sparkle.LinkedInNET";
         private static Regex urlParametersRegex = new Regex("\\{(?:([^{}= ]+) +)?([^{}= ]+)(?: *= *([^}]+))?\\}", RegexOptions.Compiled);
+
         private static readonly string[] csharpTypes = new string[] { "string", "int", "short", "long", "Guid", "DateTime", "double", "float", "byte", };
 
         public CSharpGenerator(TextWriter text)
@@ -353,22 +354,31 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                     }
                 }
 
-                var parameters = new List<Parameter>();
+                var urlParameters = new List<Parameter>();
 
                 if (method.RequiresUserAuthentication)
                 {
-                    parameters.Add(new Parameter("user", "UserAuthorization"));
+                    urlParameters.Add(new Parameter("user", "UserAuthorization"));
                 }
-
-                var urlParams = this.GetUrlPathParameters(method.Path, NameTransformation.PascalCase);
+                
+                var urlParams = GetUrlPathParameters(method.Path, NameTransformation.PascalCase);
                 foreach (var urlParam in urlParams)
                 {
-                    parameters.Add(urlParam.Value);
+                    urlParameters.Add(urlParam.Value);
+                }
+
+                var queryParameters = new List<Parameter>();
+                var queryParams = string.IsNullOrWhiteSpace(method.Query)
+                    ? new Dictionary<string, Parameter>()
+                    : GetUrlPathParameters(method.Query, NameTransformation.PascalCase);
+                foreach (var queryParam in queryParams)
+                {
+                    urlParameters.Add(queryParam.Value);
                 }
 
                 if (method.UsesAcceptLanguage)
                 {
-                    parameters.Add(new Parameter("acceptLanguages", "string[]", originalName: "acceptLanguages = null"));
+                    urlParameters.Add(new Parameter("acceptLanguages", "string[]", originalName: "acceptLanguages = null"));
                 }
 
                 // doc
@@ -387,7 +397,7 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 this.text.WriteLine(indent++, "public " + returnType + " " + this.GetPropertyName(method.MethodName, method.Path) + "(");
 
                 var sep = "  ";
-                foreach (var parameter in parameters)
+                foreach (var parameter in urlParameters)
                 {
                     this.text.WriteLine(indent, sep + (parameter.Type ?? "string") + " " 
                         + parameter.Name + " " 
@@ -407,13 +417,17 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
 
                 this.text.WriteLine(--indent, ")");
                 this.text.WriteLine(indent++, "{");
-                
-                // body / format url
+
+                // body 
+                if (urlParams.Count > 0 || queryParams.Count > 0)
+                {
+                    this.text.WriteLine(indent, "string skipUrlParamsEscape = \"" + method.SkipUrlParamsEscape + "\";");
+                }
+
+                // body /format url
                 if (urlParams.Count > 0)
                 {
                     this.text.WriteLine(indent, "string urlFormat = \"" + method.Path + "\";");
-                    this.text.WriteLine(indent, "string skipUrlParamsEscape = \"" + method.SkipUrlParamsEscape + "\";");                    
-
                     this.text.WriteLine(indent, "var url = FormatUrl(urlFormat, " + (method.UseFieldSelectors ? "fields" : "default(FieldSelector)") + ", skipUrlParamsEscape, " + string.Join(", ", urlParams.Values.Select(p => "\"" + p.OriginalName + "\", " + p.Name).ToArray()) + ");");
                 }
                 else if (method.Path.Contains("FieldSelector"))
@@ -424,6 +438,22 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 else
                 {
                     this.text.WriteLine(indent, "var url = \"" + method.Path + "\";");
+                }
+
+                // body / format query
+                if (queryParams.Count > 0)
+                {
+                    this.text.WriteLine(indent, "string queryFormat = \"" + method.Query + "\";");
+                    this.text.WriteLine(indent, "var query = FormatQuery(queryFormat, " + (method.UseFieldSelectors ? "fields" : "default(FieldSelector)") + ", skipUrlParamsEscape, " + string.Join(", ", queryParams.Values.Select(p => "\"" + p.OriginalName + "\", " + p.Name).ToArray()) + ");");
+                }
+                else if (!string.IsNullOrWhiteSpace(method.Query) && method.Query.Contains("FieldSelector"))
+                {
+                    this.text.WriteLine(indent, "string queryFormat = \"" + method.Query + "\";");
+                    this.text.WriteLine(indent, "var query = FormatQuery(queryFormat, fields);");
+                }
+                else if (method.RequiresTunneling)
+                {
+                    this.text.WriteLine(indent, "var query = \"" + method.Query + "\";");
                 }
 
                 // body / create context
@@ -442,6 +472,14 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
 
                 text.WriteLine(indent, "context.Method =  \"" + method.HttpMethod + "\";");
                 text.WriteLine(indent, "context.UrlPath = this.LinkedInApi.Configuration.BaseApiUrl + url;");
+
+                if (method.RequiresTunneling)
+                {
+                    text.WriteLine(indent, "// Requires for GET post tunneling");
+                    //text.WriteLine(indent, @"context.RequestHeaders.Add(""Content-Type"",""application/x-www-form-urlencoded"");");
+                    //text.WriteLine(indent, @"context.RequestHeaders.Add(""X-HTTP-Method-Override"",""GET"");");
+                    text.WriteLine(indent, "this.CreateTunnelingPostStream(context, query);");
+                }
 
                 if (postReturnTypeType != null)
                 {
@@ -549,7 +587,7 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 this.text.WriteLine(indent++, "public async Task<" + returnType + "> " + this.GetPropertyName(method.MethodName, method.Path) + "Async(");
 
                 sep = "  ";
-                foreach (var parameter in parameters)
+                foreach (var parameter in urlParameters)
                 {
                     this.text.WriteLine(indent, sep + (parameter.Type ?? "string") + " "
                         + parameter.Name + " "
@@ -570,13 +608,16 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 this.text.WriteLine(--indent, ")");
                 this.text.WriteLine(indent++, "{");
 
+                // body 
+                if (urlParams.Count > 0 || queryParams.Count > 0)
+                {
+                    this.text.WriteLine(indent, "string skipUrlParamsEscape = \"" + method.SkipUrlParamsEscape + "\";");
+                }
+
                 // body / format url
                 if (urlParams.Count > 0)
                 {
                     this.text.WriteLine(indent, "string urlFormat = \"" + method.Path + "\";");
-                    this.text.WriteLine(indent, "string skipUrlParamsEscape = \"" + method.SkipUrlParamsEscape + "\";");
-                    // skipEscapeUrlParams, 
-
                     this.text.WriteLine(indent, "var url = FormatUrl(urlFormat, " + (method.UseFieldSelectors ? "fields" : "default(FieldSelector)") + ", skipUrlParamsEscape, " + string.Join(", ", urlParams.Values.Select(p => "\"" + p.OriginalName + "\", " + p.Name).ToArray()) + ");");
                 }
                 else if (method.Path.Contains("FieldSelector"))
@@ -587,6 +628,22 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 else
                 {
                     this.text.WriteLine(indent, "var url = \"" + method.Path + "\";");
+                }
+
+                // body / format query
+                if (queryParams.Count > 0)
+                {
+                    this.text.WriteLine(indent, "string queryFormat = \"" + method.Query + "\";");
+                    this.text.WriteLine(indent, "var query = FormatQuery(queryFormat, " + (method.UseFieldSelectors ? "fields" : "default(FieldSelector)") + ", skipUrlParamsEscape, " + string.Join(", ", queryParams.Values.Select(p => "\"" + p.OriginalName + "\", " + p.Name).ToArray()) + ");");
+                }
+                else if (!string.IsNullOrWhiteSpace(method.Query) && method.Query.Contains("FieldSelector"))
+                {
+                    this.text.WriteLine(indent, "string queryFormat = \"" + method.Query + "\";");
+                    this.text.WriteLine(indent, "var query = FormatQuery(queryFormat, fields);");
+                }
+                else if (method.RequiresTunneling)
+                {
+                    this.text.WriteLine(indent, "var query = \"" + method.Query + "\";");
                 }
 
                 // body / create context
@@ -605,6 +662,14 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
 
                 text.WriteLine(indent, "context.Method =  \"" + method.HttpMethod + "\";");
                 text.WriteLine(indent, "context.UrlPath = this.LinkedInApi.Configuration.BaseApiUrl + url;");
+
+                if (method.RequiresTunneling)
+                {
+                    text.WriteLine(indent, "// Requires for GET post tunneling");
+                    // text.WriteLine(indent, @"context.RequestHeaders.Add(""Content-Type"",""application/x-www-form-urlencoded"");");
+                    // text.WriteLine(indent, @"context.RequestHeaders.Add(""X-HTTP-Method-Override"",""GET"");");
+                    text.WriteLine(indent, "this.CreateTunnelingPostStream(context, query);");
+                }
 
                 if (postReturnTypeType != null)
                 {
@@ -664,7 +729,7 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
                 else if (method.IsIntResultHandeling)
                 {
                     text.WriteLine(indent, "var result = (int)context.HttpStatusCode;");
-                }
+                } 
                 else if (method.IsStringResultHandeling)
                 {
                     text.WriteLine(indent, "var result = this.HandleRawResponse(context, System.Text.Encoding.UTF8);");
@@ -726,7 +791,7 @@ namespace Sparkle.LinkedInNET.ServiceDefinition
 
             return values;
         }
-
+       
         private void WriteReturnTypes(GeneratorContext context, ReturnType returnType, ApiGroup apiGroup)
         {
             int indent = 0;
