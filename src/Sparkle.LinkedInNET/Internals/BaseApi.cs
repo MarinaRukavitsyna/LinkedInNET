@@ -1,4 +1,4 @@
-﻿
+
 namespace Sparkle.LinkedInNET.Internals
 {
     using Newtonsoft.Json;
@@ -62,6 +62,82 @@ namespace Sparkle.LinkedInNET.Internals
         protected string FormatUrl(string format, FieldSelector fieldSelector, string skipUrlParamsEscape, params object[] values)
         {
             var result = format;
+
+            var dic = new Dictionary<string, string>(values.Length / 2);
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i % 2 == 1)
+                {
+                    var key = values[i - 1].ToString();
+                    object valueObject = values[i] != null ? values[i] : null;
+                    var value = valueObject != null ? valueObject.ToString() : null;
+
+                    if (valueObject != null)
+                    {
+                        var type = valueObject.GetType();
+                        DateTime? ndt = null;
+
+                        if (type == typeof(DateTime?))
+                        {
+                            ndt = (DateTime?)valueObject;
+                        }
+
+                        if (type == typeof(DateTime))
+                        {
+                            ndt = (DateTime)valueObject;
+                        }
+
+                        if (ndt != null)
+                        {
+                            value = ndt.Value.ToUnixTime().ToString();
+                        }
+                    }
+
+                    dic.Add(key, value);
+                }
+            }
+
+            if (fieldSelector != null)
+            {
+                var selector = fieldSelector.ToString();
+                selector = selector.Replace("~~~", "~:");
+                result = result.Replace("{FieldSelector}", selector);
+            }
+            else
+            {
+                result = result.Replace("{FieldSelector}", string.Empty);
+            }
+
+            var skipParamsEscape = !string.IsNullOrEmpty(skipUrlParamsEscape) ? skipUrlParamsEscape.Split(',').ToList() : new List<string>();
+
+            foreach (var key in dic.Keys)
+            {
+                var value = dic[key];
+                if (value != null)
+                {
+                    var skipEscape = skipParamsEscape.Contains(key);
+                    result = result.Replace("{" + key + "}", skipEscape ? value : Uri.EscapeDataString(value));
+                }
+                else
+                {
+                    result = result.Replace("{" + key + "}", string.Empty);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Formats the Query.
+        /// </summary>
+        /// <param name="queryFormat">The query to format.</param>
+        /// <param name="fieldSelector">The field selectors.</param>
+        /// <param name="skipUrlParamsEscape">list lit comma separated values. e.g.: urn,id,postId</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        protected string FormatQuery(string queryFormat, FieldSelector fieldSelector, string skipUrlParamsEscape, params object[] values)
+        {
+            var result = queryFormat;
 
             var dic = new Dictionary<string, string>(values.Length / 2);
             for (int i = 0; i < values.Length; i++)
@@ -441,6 +517,15 @@ namespace Sparkle.LinkedInNET.Internals
 
             context.RequestHeaders.Add("x-li-format", "json");
             context.PostDataType = "application/json";
+            context.PostData = bytes;
+        }
+
+        internal void CreateTunnelingPostStream(RequestContext context, string query)
+        {
+            var bytes = Encoding.UTF8.GetBytes(query);
+
+            context.RequestHeaders.Add("X-HTTP-Method-Override", "GET");
+            context.PostDataType = "application/x-www-form-urlencoded";
             context.PostData = bytes;
         }
 
