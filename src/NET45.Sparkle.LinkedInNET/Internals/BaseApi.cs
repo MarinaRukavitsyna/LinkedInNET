@@ -1,4 +1,4 @@
-﻿
+
 namespace Sparkle.LinkedInNET.Internals
 {
     using Newtonsoft.Json;
@@ -48,7 +48,7 @@ namespace Sparkle.LinkedInNET.Internals
         /// <returns></returns>
         protected string FormatUrl(string format, params object[] values)
         {
-            return this.FormatUrl(format, null, values);
+            return this.FormatUrl(format, null, null, values);
         }
 
         /// <summary>
@@ -56,9 +56,10 @@ namespace Sparkle.LinkedInNET.Internals
         /// </summary>
         /// <param name="format">The format.</param>
         /// <param name="fieldSelector">The field selectors.</param>
+        /// <param name="skipUrlParamsEscape">list lit comma separated values. e.g.: urn,id,postId</param>
         /// <param name="values">The values.</param>
         /// <returns></returns>
-        protected string FormatUrl(string format, FieldSelector fieldSelector, params object[] values)
+        protected string FormatUrl(string format, FieldSelector fieldSelector, string skipUrlParamsEscape, params object[] values)
         {
             var result = format;
 
@@ -107,12 +108,91 @@ namespace Sparkle.LinkedInNET.Internals
                 result = result.Replace("{FieldSelector}", string.Empty);
             }
 
+            var skipParamsEscape = !string.IsNullOrEmpty(skipUrlParamsEscape) ? skipUrlParamsEscape.Split(',').ToList() : new List<string>();
+
             foreach (var key in dic.Keys)
             {
                 var value = dic[key];
                 if (value != null)
                 {
-                    result = result.Replace("{" + key + "}", Uri.EscapeDataString(value));
+                    var skipEscape = skipParamsEscape.Contains(key);
+                    result = result.Replace("{" + key + "}", skipEscape ? value : Uri.EscapeDataString(value));
+                }
+                else
+                {
+                    result = result.Replace("{" + key + "}", string.Empty);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Formats the Query.
+        /// </summary>
+        /// <param name="queryFormat">The query to format.</param>
+        /// <param name="fieldSelector">The field selectors.</param>
+        /// <param name="skipUrlParamsEscape">list lit comma separated values. e.g.: urn,id,postId</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        protected string FormatQuery(string queryFormat, FieldSelector fieldSelector, string skipUrlParamsEscape, params object[] values)
+        {
+            var result = queryFormat;
+
+            var dic = new Dictionary<string, string>(values.Length / 2);
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (i % 2 == 1)
+                {
+                    var key = values[i - 1].ToString();
+                    object valueObject = values[i] != null ? values[i] : null;
+                    var value = valueObject != null ? valueObject.ToString() : null;
+
+                    if (valueObject != null)
+                    {
+                        var type = valueObject.GetType();
+                        DateTime? ndt = null;
+
+                        if (type == typeof(DateTime?))
+                        {
+                            ndt = (DateTime?)valueObject;
+                        }
+
+                        if (type == typeof(DateTime))
+                        {
+                            ndt = (DateTime)valueObject;
+                        }
+
+                        if (ndt != null)
+                        {
+                            value = ndt.Value.ToUnixTime().ToString();
+                        }
+                    }
+
+                    dic.Add(key, value);
+                }
+            }
+
+            if (fieldSelector != null)
+            {
+                var selector = fieldSelector.ToString();
+                selector = selector.Replace("~~~", "~:");
+                result = result.Replace("{FieldSelector}", selector);
+            }
+            else
+            {
+                result = result.Replace("{FieldSelector}", string.Empty);
+            }
+
+            var skipParamsEscape = !string.IsNullOrEmpty(skipUrlParamsEscape) ? skipUrlParamsEscape.Split(',').ToList() : new List<string>();
+
+            foreach (var key in dic.Keys)
+            {
+                var value = dic[key];
+                if (value != null)
+                {
+                    var skipEscape = skipParamsEscape.Contains(key);
+                    result = result.Replace("{" + key + "}", skipEscape ? value : Uri.EscapeDataString(value));
                 }
                 else
                 {
@@ -138,11 +218,11 @@ namespace Sparkle.LinkedInNET.Internals
             if (apiSecretKey && string.IsNullOrEmpty(config.ApiSecretKey))
                 throw new InvalidOperationException("Missing API Secret Key in configuration");
         }
-
-        internal bool ExecuteQuery(RequestContext context)
+        
+        internal bool ExecuteQuery(RequestContext context, bool? useRestliProtocol = false)
         {
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
             // https://developer.linkedin.com/documents/request-and-response-headers
 
@@ -158,10 +238,10 @@ namespace Sparkle.LinkedInNET.Internals
             var request = (HttpWebRequest)HttpWebRequest.Create(isOctet ? context.UploadUrl : context.UrlPath);
             request.Method = context.Method;
             request.UserAgent = LibraryInfo.UserAgent;
-            if (context.PostDataType == "multipart/form-data" || context.PostDataType == "application/octet-stream")
+            if ((context.PostDataType == "multipart/form-data" || context.PostDataType == "application/octet-stream") && (!useRestliProtocol.HasValue || !useRestliProtocol.Value))
             {
             }
-            else if (!isOctet && context.UrlPath.Contains("ugcPosts"))
+            else if (!isOctet && context.UrlPath.Contains("ugcPosts") || useRestliProtocol.HasValue && useRestliProtocol.Value)
             {
                 request.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
             }
@@ -200,7 +280,8 @@ namespace Sparkle.LinkedInNET.Internals
                         var formData = GetMultipartFormData(boundary, context.PostData);
 
                         request.Method = "POST";
-                        request.Timeout = 10000;
+                        // request.Timeout = 10000;
+
                         request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
                         request.ContentType = "multipart/form-data; boundary=" + boundary;
                         request.ContentLength = formData.Length;
@@ -248,6 +329,10 @@ namespace Sparkle.LinkedInNET.Internals
                     throw new InvalidOperationException("Error POSTing to API (" + ex.Message + ")", ex);
                 }
             }
+            else
+            {
+                request.ContentLength = 0;
+            }
 
             // get response
             HttpWebResponse response;
@@ -261,7 +346,8 @@ namespace Sparkle.LinkedInNET.Internals
                 BufferizeResponse(context, readStream);
 
                 // check HTTP code
-                if (!(response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created))
+                if (!(response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created) && 
+                    (request.Method == "DELETE" && !(response.StatusCode == HttpStatusCode.NoContent)))
                 {
                     throw new InvalidOperationException("Error from API (HTTP " + (int)(response.StatusCode) + ")");
                 }
@@ -434,6 +520,15 @@ namespace Sparkle.LinkedInNET.Internals
             context.PostData = bytes;
         }
 
+        internal void CreateTunnelingPostStream(RequestContext context, string query)
+        {
+            var bytes = Encoding.UTF8.GetBytes(query);
+
+            context.RequestHeaders.Add("X-HTTP-Method-Override", "GET");
+            context.PostDataType = "application/x-www-form-urlencoded";
+            context.PostData = bytes;
+        }
+
         internal void CreateXmlPostStream(RequestContext context, object postData)
         {
             var ser = new XmlSerializer(postData.GetType());
@@ -565,6 +660,10 @@ namespace Sparkle.LinkedInNET.Internals
             {
                 // the HTTP code matches a error response
                 ThrowJsonErrorResult(context, errorResult, json);
+            }
+            else if (context.Method == "DELETE" && context.HttpStatusCode == (int)HttpStatusCode.NoContent)
+            {
+                result = JsonConvert.DeserializeObject<T>("true");
             }
             else
             {
