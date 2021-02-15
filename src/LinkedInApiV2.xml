@@ -1,226 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Root>
-  <ApiGroup Name="Profiles">
-    <ApiMethod MethodName="GetMyProfile" HttpMethod="GET" ReturnType="Person" Path="/v2/me?{FieldSelector}"
-      Title="the profile of the current user" Remark="See https://developer.linkedin.com/docs/guide/v2/people/profile-api"
-      RequiresUserAuthentication="1" UsesAcceptLanguage="1" />
-
-    <ApiMethod MethodName="GetProfile"
-               HttpMethod="GET"
+	<ApiGroup Name="Profiles">
+		<ApiMethod MethodName="GetMyProfile" 
+               HttpMethod="GET" 
+               ReturnType="Person" 
+               Path="/v2/me?{FieldSelector}"
+               Title="The profile of the current user" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api"
+               RequiresUserAuthentication="1" 
+               UsesAcceptLanguage="1" />
+    
+		<ApiMethod MethodName="GetProfile"
+               HttpMethod="POST" RequiresTunneling="1" 
                ReturnType="Person"
-               Path="/v2/people/(id:{profileId})?projection=(*,profilePicture(displayImage~:playableStreams))"
+               Path="/v2/people/(id:{profileId})"
+               Query="projection=(*,profilePicture(displayImage~:playableStreams))"
                UseRestliProtocol="1"
-               Title="the profile of the current user" Remark="See https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api"
-               RequiresUserAuthentication="1"
-               />
-
-    <ApiMethod MethodName="GetProfilesByIds"
-           HttpMethod="GET"
-           ReturnType="PersonList"
-           Path="/v2/people?ids=List({personIds})&amp;projection=(*,results(*(*,profilePicture(displayImage~:playableStreams))))"
-           UseRestliProtocol="1"
-           SkipUrlParamsEscape="personIds"
-           Title="the profile of the current user" Remark="See https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api
-           PersonIds must have the following schema: (id:personId),(id:personId1):(id:personId2)"
-           RequiresUserAuthentication="1"
-           />
-
-    <ApiMethod MethodName="GetFirstDegreeConnections" 
+               Title="The profile of the current user" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api"
+               RequiresUserAuthentication="1" />
+    
+		<ApiMethod MethodName="GetProfilesByIds"
+               HttpMethod="POST" RequiresTunneling="1" 
+               ReturnType="PersonList"
+               Path="/v2/people"
+               Query="ids=List({personIds})&amp;projection=(*,results(*(*,profilePicture(displayImage~:playableStreams))))"
+               UseRestliProtocol="1"
+               SkipUrlParamsEscape="personIds"
+               Title="The profile of the current user" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api
+               PersonIds must have the following schema: (id:personId),(id:personId1):(id:personId2)"
+               RequiresUserAuthentication="1" />
+    
+		<ApiMethod MethodName="GetFirstDegreeConnections" 
                HttpMethod="GET" 
                ReturnType="DegreeSize" 
                Path="/v2/connections/urn:li:person:{profileId}"          
                RequiresUserAuthentication="1" 
                UsesAcceptLanguage="0" 
                UseFieldSelectors="0" />
-
-    <ReturnType Name="person" ClassName="Person" AutoGenerateFieldSelectors="1">
-      <!-- Basic profile fields -->
-      <Field Name="id" Title="a unique identifier token for this member" />
-      <Field Name="firstName" Type="Common.MultiLocaleString">
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      <Field Name="lastName" Type="Common.MultiLocaleString">
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      <Field Name="maidenName" Type="Common.MultiLocaleString" >
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
+    
+		<ReturnType Name="person" ClassName="Person" AutoGenerateFieldSelectors="1">
+			<!-- Basic profile fields -->
+			<Field Name="id" Title="a unique identifier token for this member" />
+			<Field Name="firstName" Type="Common.MultiLocaleString">
+				<Field Name="localized" PropertyName="Localized"/>
+				<Field Name="preferredLocale" PropertyName="PreferredLocale"/></Field>
+			<Field Name="lastName" Type="Common.MultiLocaleString">
+				<Field Name="localized" PropertyName="Localized"/>
+				<Field Name="preferredLocale" PropertyName="PreferredLocale"/></Field>
+			<Field Name="maidenName" Type="Common.MultiLocaleString" >
+				<Field Name="localized" PropertyName="Localized"/>
+				<Field Name="preferredLocale" PropertyName="PreferredLocale"/></Field>
+			<Field Name="headline" Type="Common.MultiLocaleString">
+				<Field Name="localized" PropertyName="Localized"/>
+				<Field Name="preferredLocale" PropertyName="PreferredLocale"/></Field>
+			<Field Name="profilePicture" Type="ProfilePicture">
+				<FieldSelector Name="profilePicture(displayImage~~~playableStreams)" PropertyName="DisplayImageLoaded" />
+			</Field>
+			<Field Name="vanityName" Title="a unique identifier token for this member" />
+		</ReturnType>
+    
+		<ReturnType Name="PersonList" ClassName="PersonList" AutoGenerateFieldSelectors="1">
+			<Field Name="statuses" Type="dynamic"/>
+			<Field Name="results" Type="dynamic" />
+			<Field Name="errors" Type="dynamic"/>
+		</ReturnType>
+    
+		<ReturnType Name="location" ClassName="Location">
+			<Field Name="countryCode" PropertyName="CountryCode"/>
+			<Field Name="postalCode" PropertyName="PostalCode" />
+			<Field Name="standardizedLocationUrn" PropertyName="StandardizedLocationUrn" />
+			<Field Name="userSelectedGeoPlaceCode" PropertyName="UserSelectedGeoPlaceCode" />
+		</ReturnType>
+    
+		<ReturnType Name="position" ClassName="Position">
+			<Field Name="id" PropertyName="Id" />
+			<Field Name="company" PropertyName="Company" />
+			<Field Name="companyName" PropertyName="CompanyName" Type="Common.MultiLocaleString"/>
+			<Field Name="description" PropertyName="Description" Type="Common.MultiLocaleRichText"/>
+			<Field Name="endMonthYear" PropertyName="EndMonthYear" Type="DateParts"/>
+			<Field Name="location" PropertyName="Location" Type="Location"/>
+			<Field Name="locationName" PropertyName="LocationName" Type="Common.MultiLocaleRichText"/>
+			<Field Name="richMediaAssociations" PropertyName="RichMediaAssociations" IsCollection="1" Type="RichMediaURN"/>
+			<Field Name="startMonthYear" PropertyName="startMonthYear" Type="DateParts"/>
+			<Field Name="title" PropertyName="Title" Type="Common.MultiLocaleString"/>
+		</ReturnType>
+    
+		<ReturnType Name="dateParts" ClassName="DateParts">
+			<Field Name="year" Type="short?" />
+			<Field Name="month" Type="short?" />
+			<Field Name="day" Type="short?" />
+		</ReturnType>
+    
+		<ReturnType Name="richMediaURN" ClassName="RichMediaURN">
+			<Field Name="content" PropertyName="Content" Type="JObject"/>
+			<Field Name="description" PropertyName="Description" Type="Common.MultiLocaleRichText"/>
+			<Field Name="id" PropertyName="Id" Type="long?"/>
+			<Field Name="member" PropertyName="Member" Type="JObject"/>
+			<Field Name="thumbnailImage" PropertyName="ThumbnailImage" Type="JObject"/>
+			<Field Name="title" PropertyName="title" Type="Common.MultiLocaleString"/>
+		</ReturnType>
+    
+		<ReturnType Name="profilePicture" ClassName="ProfilePicture">
+			<Field Name="displayImage" />
+			<Field Name="displayImage~" PropertyName="DisplayImageLoaded" Type="DisplayImageLoaded"/>
+		</ReturnType>
       
-      <!--<Field Name="phoneticFirstName" Type="Common.MultiLocaleString">
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      <Field Name="phoneticLastName" Type="Common.MultiLocaleString" >
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>-->
-      
-      <Field Name="headline" Type="Common.MultiLocaleString">
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      
-      <!--<Field Name="location" Type="Location" Title="a unique identifier token for this member"/>
-      <Field Name="industryName" Type="Common.MultiLocaleRichText" >
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      <Field Name="summary" Type="Common.MultiLocaleRichText">
-        <Field Name="localized" PropertyName="Localized"/>
-        <Field Name="preferredLocale" PropertyName="PreferredLocale"/>
-      </Field>
-      <Field Name="specialties" Type="Common.MultiLocaleRichText" />
-      <Field Name="positions" Type="Position" />-->
-      
-      <Field Name="profilePicture" Type="ProfilePicture">
-        <FieldSelector Name="profilePicture(displayImage~~~playableStreams)" PropertyName="DisplayImageLoaded" />
-      </Field>
-      <Field Name="vanityName" Title="a unique identifier token for this member" />
-      
-      <!--<Field Name="lastModified" Type="long?" Title="a unique identifier token for this member" />
-      <Field Name="organizations" Type="JObject" Title="a unique identifier token for this member" />-->
-    </ReturnType>
-
-    <ReturnType Name="PersonList" ClassName="PersonList" AutoGenerateFieldSelectors="1">
-      <Field Name="statuses" Type="dynamic"/>
-      <Field Name="results" Type="dynamic" />
-      <Field Name="errors" Type="dynamic"/>
-    </ReturnType>
-
-
-
-    <ReturnType Name="location" ClassName="Location">
-      <Field Name="countryCode" PropertyName="CountryCode"/>
-      <Field Name="postalCode" PropertyName="PostalCode" />
-      <Field Name="standardizedLocationUrn" PropertyName="StandardizedLocationUrn" />
-      <Field Name="userSelectedGeoPlaceCode" PropertyName="UserSelectedGeoPlaceCode" />
-    </ReturnType>
-
-    <ReturnType Name="position" ClassName="Position">
-      <Field Name="id" PropertyName="Id" />
-      <Field Name="company" PropertyName="Company" />
-      <Field Name="companyName" PropertyName="CompanyName" Type="Common.MultiLocaleString"/>
-      <Field Name="description" PropertyName="Description" Type="Common.MultiLocaleRichText"/>
-      <Field Name="endMonthYear" PropertyName="EndMonthYear" Type="DateParts"/>
-      <Field Name="location" PropertyName="Location" Type="Location"/>
-      <Field Name="locationName" PropertyName="LocationName" Type="Common.MultiLocaleRichText"/>
-      <Field Name="richMediaAssociations" PropertyName="RichMediaAssociations" IsCollection="1" Type="RichMediaURN"/>
-      <Field Name="startMonthYear" PropertyName="startMonthYear" Type="DateParts"/>
-      <Field Name="title" PropertyName="Title" Type="Common.MultiLocaleString"/>
-    </ReturnType>
-
-    <ReturnType Name="dateParts" ClassName="DateParts">
-      <Field Name="year" Type="short?" />
-      <Field Name="month" Type="short?" />
-      <Field Name="day" Type="short?" />
-    </ReturnType>
-
-    <ReturnType Name="richMediaURN" ClassName="RichMediaURN">
-      <Field Name="content" PropertyName="Content" Type="JObject"/>
-      <Field Name="description" PropertyName="Description" Type="Common.MultiLocaleRichText"/>
-      <Field Name="id" PropertyName="Id" Type="long?"/>
-      <Field Name="member" PropertyName="Member" Type="JObject"/>
-      <Field Name="thumbnailImage" PropertyName="ThumbnailImage" Type="JObject"/>
-      <Field Name="title" PropertyName="title" Type="Common.MultiLocaleString"/>
-    </ReturnType>
-
-    <ReturnType Name="profilePicture" ClassName="ProfilePicture">
-      <Field Name="displayImage" />
-      <Field Name="displayImage~" PropertyName="DisplayImageLoaded" Type="DisplayImageLoaded"/>
-    </ReturnType>
-
-    <ReturnType Name="displayImageLoaded" ClassName="DisplayImageLoaded">
-      <Field Name="elements" Type="DisplayImageElements" IsCollection="1"/>
-    </ReturnType>
-
-    <ReturnType Name="displayImageElements" ClassName="DisplayImageElements">
-      <Field Name="artifact"  />
-      <Field Name="authorizationMethod"  />
-      <Field Name="identifiers" Type="DisplayImageElementIdentifiers" IsCollection="1"/>
-    </ReturnType>
-
-    <ReturnType Name="displayImageElementIdentifiers" ClassName="DisplayImageElementIdentifiers">
-      <Field Name="identifier"  />
-      <Field Name="file"  />
-      <Field Name="index"  />
-      <Field Name="mediaType"  />
-      <Field Name="identifierExpiresInSeconds" Type="long?" />
-    </ReturnType>
-
-    <ReturnType Name="DegreeSize" ClassName="DegreeSize" AutoGenerateFieldSelectors="1">
-        <Field Name="firstDegreeSize" Type="int"/>
-    </ReturnType>
-
-    <FieldGroup Name="BasicFields">
-      <Name Name="id" />
-      <Name Name="firstName" />
-      <Name Name="lastName" />
-      <Name Name="maidenName" />
-      <Name Name="phoneticFirstName" />
-      <Name Name="phoneticLastName" />
-      <Name Name="headline" />
-      <Name Name="location" />
-      <Name Name="industryName" />
-      <Name Name="summary" />
-      <Name Name="specialties"/>
-      <Name Name="positions" />
-      <Name Name="pictureInfo" />
-      <Name Name="profilePicture" />
-      <Name Name="vanityName" />
-      <Name Name="lastModified" />
-    </FieldGroup>
-  </ApiGroup>
-
-
-  <ApiGroup Name="Organizations">
-    <ApiMethod MethodName="GetById" HttpMethod="GET" Path="/v2/organizations/{CompanyId}" ReturnType="Organization"
-      Title="retrieve a company by using the company ID"
-      RequiresUserAuthentication="1" Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/organization-lookup-api"/>
-
-    <ApiMethod MethodName="GetOrganizationBrandById" 
+		<ReturnType Name="displayImageLoaded" ClassName="DisplayImageLoaded">
+			<Field Name="elements" Type="DisplayImageElements" IsCollection="1"/>
+		</ReturnType>
+    
+		<ReturnType Name="displayImageElements" ClassName="DisplayImageElements">
+			<Field Name="artifact"  />
+			<Field Name="authorizationMethod"  />
+			<Field Name="identifiers" Type="DisplayImageElementIdentifiers" IsCollection="1"/>
+		</ReturnType>
+    
+		<ReturnType Name="displayImageElementIdentifiers" ClassName="DisplayImageElementIdentifiers">
+			<Field Name="identifier"  />
+			<Field Name="file"  />
+			<Field Name="index"  />
+			<Field Name="mediaType"  />
+			<Field Name="identifierExpiresInSeconds" Type="long?" />
+		</ReturnType>
+    
+		<ReturnType Name="DegreeSize" ClassName="DegreeSize" AutoGenerateFieldSelectors="1">
+			<Field Name="firstDegreeSize" Type="int"/>
+		</ReturnType>
+    
+		<FieldGroup Name="BasicFields">
+			<Name Name="id" />
+			<Name Name="firstName" />
+			<Name Name="lastName" />
+			<Name Name="maidenName" />
+			<Name Name="phoneticFirstName" />
+			<Name Name="phoneticLastName" />
+			<Name Name="headline" />
+			<Name Name="location" />
+			<Name Name="industryName" />
+			<Name Name="summary" />
+			<Name Name="specialties"/>
+			<Name Name="positions" />
+			<Name Name="pictureInfo" />
+			<Name Name="profilePicture" />
+			<Name Name="vanityName" />
+			<Name Name="lastModified" />
+		</FieldGroup>
+  
+	</ApiGroup>
+    
+	<ApiGroup Name="Organizations">
+		<ApiMethod MethodName="GetById" 
+               HttpMethod="GET" 
+               Path="/v2/organizations/{CompanyId}" 
+               ReturnType="Organization"
+               Title="Retrieve a company by using the company ID"
+               RequiresUserAuthentication="1" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/organization-lookup-api"/>
+		
+	  <ApiMethod MethodName="GetOrganizationBrandById" 
                HttpMethod="GET" 
                Path="/v2/organizationBrands/{CompanyId}" 
                ReturnType="Organization"
-               Title="retrieve a company brand by using the company ID"
-               RequiresUserAuthentication="1" Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/organization-lookup-api"/>
-        
-     <ApiMethod MethodName="GetOrganizationPerformanceData" 
-               HttpMethod="GET" 
-               Path="/v2/organizationPageStatistics?q=organization&amp;organization=urn:li:organization:{CompanyId}" 
+               Title="Retrieve a company brand by using the company ID"
+               RequiresUserAuthentication="1" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/organization-lookup-api"/>
+    
+		<ApiMethod MethodName="GetOrganizationPerformanceData" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationPageStatistics" 
+               Query="q=organization&amp;organization=urn:li:organization:{CompanyId}" 
                ReturnType="OrganizationPageStatistics"
-               Title="retrieve an organization pagestatistics by using the company ID"
+               Title="Retrieve an organization pagestatistics by using the company ID"
                RequiresUserAuthentication="1" 
                UseFieldSelectors="0" />
     
-    <ApiMethod MethodName="GetUserAdminApprOrganizations" HttpMethod="GET"
-              Path="/v2/organizationalEntityAcls?q=roleAssignee&amp;role=ADMINISTRATOR&amp;projection=(elements*(*,organizationalTarget~(id, name, vanityName, logoV2(original~:playableStreams))))" ReturnType="OrganizationalEntityAcls"
-              Title="retrieve list of companies where current user is administrator and is approved"
-              RequiresUserAuthentication="1" Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/organization-lookup-api"/>
-
-    <ApiMethod MethodName="GetOrgFollowerStatistics" HttpMethod="GET"
-                    Path="/v2/organizationalEntityFollowerStatistics?q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}"
-                    ReturnType="OrgFollowerStatistic"
-                    RequiresUserAuthentication="1"
-                    UseFieldSelectors="0"
-                    Title="Retrieve Follower Statistics"
-                    Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/follower-statistics" />
+		<ApiMethod MethodName="GetUserAdminApprOrganizations" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityAcls" 
+               Query="q=roleAssignee&amp;role=ADMINISTRATOR&amp;projection=(elements*(*,organizationalTarget~(id, name, vanityName, logoV2(original~:playableStreams))))"
+               ReturnType="OrganizationalEntityAcls"
+               Title="Retrieve list of companies where current user is administrator and is approved"
+               RequiresUserAuthentication="1" 
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/organization-lookup-api"/>
     
-    <ApiMethod MethodName="GetOrganizationsByKey" 
-               HttpMethod="GET"
-               Path="/v2/search?q=companiesV2&amp;baseSearchParams.keywords={keyword}&amp;start={int Start = 0}&amp;count={int Count = 50}&amp;projection=(elements*(entity~(id, name, vanityName, logoV2(original~:playableStreams))),paging)"
+		<ApiMethod MethodName="GetOrgFollowerStatistics" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityFollowerStatistics"
+               Query="q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}"
+               ReturnType="OrgFollowerStatistic"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Retrieve Follower Statistics"
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/follower-statistics" />
+    
+		<ApiMethod MethodName="GetOrganizationsByKey" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/search"
+               Query="q=companiesV2&amp;baseSearchParams.keywords={keyword}&amp;start={int Start = 0}&amp;count={int Count = 50}&amp;projection=(elements*(entity~(id, name, vanityName, logoV2(original~:playableStreams))),paging)"
                ReturnType="Mentions"
                RequiresUserAuthentication="1"
                UseFieldSelectors="0"
                Title="Retrieve Organizations By Key"
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/organization-search?context=linkedin/compliance/context#search-by-keywords"/>
-               
-    <ApiMethod MethodName="GetOrganizationFollowerCount" 
-               HttpMethod="GET" 
+    
+		<ApiMethod MethodName="GetOrganizationFollowerCount" 
+               HttpMethod="POST" RequiresTunneling="1"  
                ReturnType="Common.Followers" 
-               Path="/v2/networkSizes/urn:li:organization:{CompanyId}?edgeType=CompanyFollowedByMember"          
+               Path="/v2/networkSizes/urn:li:organization:{CompanyId}"  
+               Query="edgeType=CompanyFollowedByMember"
                RequiresUserAuthentication="1" 
                UsesAcceptLanguage="0" 
                UseFieldSelectors="0" 
@@ -228,589 +217,608 @@
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/organization-lookup-api#retrieve-organization-follower-count" />
 
     <ReturnType Name="mentions" ClassName="Mentions" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" Type="orgElement" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="orgElement" ClassName="OrgElement" >
-      <Field Name="entity~" PropertyName="orgData" Type="Organization"/>
-      <Field Name="entity" PropertyName="entityURN" />
-    </ReturnType>
-
-    <ReturnType Name="organization" ClassName="Organization" AutoGenerateFieldSelectors="1">
-      <Field Name="id" Type="long" IsDefault="1" />
-      <Field Name="name" Type="Common.MultiLocaleString" IsDefault="1" />
-      <Field Name="logoV2" PropertyName="Logo" Type="CroppedImage" />
-      <Field Name="vanityName" />
-    </ReturnType>
-
-    <ReturnType Name="croppedImage" ClassName="CroppedImage">
-      <Field Name="height" Type="int" />
-      <Field Name="width" Type="int" />
-      <Field Name="x" Type="int"  />
-      <Field Name="y" Type="int" />
-      <Field Name="cropped" />
-      <Field Name="original~" PropertyName="OriginalObj" Type="dynamic"/>
-      <Field Name="original" />
-    </ReturnType>
-
-    <ReturnType Name="OrganizationalEntityAcls" ClassName="OrganizationalEntityAcls" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" Type="OrgEntElements" IsCollection="1">
-        <FieldSelector Name="elements*(*,organizationalTarget~(id))" PropertyName="OrgEntElementsId" />
-        <FieldSelector Name="elements*(*,organizationalTarget~(logo))" PropertyName="OrgEntElementsLogo" />
-        <FieldSelector Name="elements*(*,organizationalTarget~(name))" PropertyName="OrgEntElementsName" />
-        <FieldSelector Name="elements*(*,organizationalTarget~(id,logo,name))" PropertyName="OrgEntElementsAll" />
-      </Field>
-    </ReturnType>
-
-    <ReturnType Name="OrgEntElements" ClassName="OrgEntElements" AutoGenerateFieldSelectors="1">
-      <Field Name="state" />
-      <Field Name="role" />
-      <Field Name="roleAssignee" />
-      <Field Name="organizationalTarget" />
-      <Field Name="organizationalTarget~" PropertyName="Organization" Type="Organization">
-        <FieldSelector Name="organizationalTarget~(id)" PropertyName="Organization" />
-      </Field>
-    </ReturnType>
-
-
-    <ReturnType Name="OrgFollowerStatistic" ClassName="OrgFollowerStatistic" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="OrgFollowerStatisticsElement" Type="OrgFollowerStatisticsElement" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
+			<Field Name="elements" Type="orgElement" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
     
-    <ReturnType Name="OrganizationPageStatistics" ClassName="OrganizationPageStatistics" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="OrganizationPageStatisticsElement" Type="OrganizationPageStatisticsElement" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="OrganizationPageStatisticsElement" ClassName="OrganizationPageStatisticsElement" AutoGenerateFieldSelectors="1">
-      <Field Name="organization" />
-      <Field Name="pageStatisticsByCountry" ClassName="PageStatisticsByCountry"  Type="PageStatisticsByCountry" IsCollection="1"/>
-      <Field Name="pageStatisticsByFunction" ClassName="PageStatisticsByFunction"  Type="PageStatisticsByFunction" IsCollection="1"/>
-      <Field Name="pageStatisticsByIndustry" ClassName="PageStatisticsByIndustry"  Type="PageStatisticsByIndustry" IsCollection="1"/>
-      <Field Name="pageStatisticsByRegion" ClassName="PageStatisticsByRegion"  Type="PageStatisticsByRegion" IsCollection="1"/>
-      <Field Name="pageStatisticsBySeniority" ClassName="PageStatisticsBySeniority"  Type="PageStatisticsBySeniority" IsCollection="1"/>
-      <Field Name="pageStatisticsByStaffCountRange" ClassName="PageStatisticsByStaffCountRange"  Type="PageStatisticsByStaffCountRange" IsCollection="1"/>
-      <Field Name="totalPageStatistics" ClassName="TotalPageStatistics"  Type="TotalPageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsByCountry" ClassName="PageStatisticsByCountry" AutoGenerateFieldSelectors="1">
-      <Field Name="country"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsByFunction" ClassName="PageStatisticsByFunction" AutoGenerateFieldSelectors="1">
-      <Field Name="function"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsByIndustry" ClassName="PageStatisticsByIndustry" AutoGenerateFieldSelectors="1">
-      <Field Name="industry"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsByRegion" ClassName="PageStatisticsByRegion" AutoGenerateFieldSelectors="1">
-      <Field Name="region"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsBySeniority" ClassName="PageStatisticsBySeniority" AutoGenerateFieldSelectors="1">
-      <Field Name="seniority"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
-
-    <ReturnType Name="PageStatisticsByStaffCountRange" ClassName="PageStatisticsByStaffCountRange" AutoGenerateFieldSelectors="1">
-      <Field Name="staffCountRange"/>
-      <Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
-    </ReturnType>
+		<ReturnType Name="orgElement" ClassName="OrgElement" >
+			<Field Name="entity~" PropertyName="orgData" Type="Organization"/>
+			<Field Name="entity" PropertyName="entityURN" />
+		</ReturnType>
     
-    <ReturnType Name="TotalPageStatistics" ClassName="TotalPageStatistics" AutoGenerateFieldSelectors="1">
-      <Field Name="clicks" ClassName="Clicks" Type="Clicks" />
-      <Field Name="views" ClassName="Views" Type="Views" />
-    </ReturnType>
-
+		<ReturnType Name="organization" ClassName="Organization" AutoGenerateFieldSelectors="1">
+			<Field Name="id" Type="long" IsDefault="1" />
+			<Field Name="name" Type="Common.MultiLocaleString" IsDefault="1" />
+			<Field Name="logoV2" PropertyName="Logo" Type="CroppedImage" />
+			<Field Name="vanityName" />
+		</ReturnType>
+    
+		<ReturnType Name="croppedImage" ClassName="CroppedImage">
+			<Field Name="height" Type="int" />
+			<Field Name="width" Type="int" />
+			<Field Name="x" Type="int"  />
+			<Field Name="y" Type="int" />
+			<Field Name="cropped" />
+			<Field Name="original~" PropertyName="OriginalObj" Type="dynamic"/>
+			<Field Name="original" />
+		</ReturnType>
+    
+		<ReturnType Name="OrganizationalEntityAcls" ClassName="OrganizationalEntityAcls" AutoGenerateFieldSelectors="1">
+			<Field Name="elements" Type="OrgEntElements" IsCollection="1">
+				<FieldSelector Name="elements*(*,organizationalTarget~(id))" PropertyName="OrgEntElementsId" />
+				<FieldSelector Name="elements*(*,organizationalTarget~(logo))" PropertyName="OrgEntElementsLogo" />
+				<FieldSelector Name="elements*(*,organizationalTarget~(name))" PropertyName="OrgEntElementsName" />
+				<FieldSelector Name="elements*(*,organizationalTarget~(id,logo,name))" PropertyName="OrgEntElementsAll" />
+			</Field>
+		</ReturnType>
+    
+		<ReturnType Name="OrgEntElements" ClassName="OrgEntElements" AutoGenerateFieldSelectors="1">
+			<Field Name="state" />
+			<Field Name="role" />
+			<Field Name="roleAssignee" />
+			<Field Name="organizationalTarget" />
+			<Field Name="organizationalTarget~" PropertyName="Organization" Type="Organization">
+				<FieldSelector Name="organizationalTarget~(id)" PropertyName="Organization" />
+			</Field>
+		</ReturnType>
+    
+		<ReturnType Name="OrgFollowerStatistic" ClassName="OrgFollowerStatistic" AutoGenerateFieldSelectors="1">
+			<Field Name="elements" ClassName="OrgFollowerStatisticsElement" Type="OrgFollowerStatisticsElement" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="OrganizationPageStatistics" ClassName="OrganizationPageStatistics" AutoGenerateFieldSelectors="1">
+			<Field Name="elements" ClassName="OrganizationPageStatisticsElement" Type="OrganizationPageStatisticsElement" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="OrganizationPageStatisticsElement" ClassName="OrganizationPageStatisticsElement" AutoGenerateFieldSelectors="1">
+			<Field Name="organization" />
+			<Field Name="pageStatisticsByCountry" ClassName="PageStatisticsByCountry"  Type="PageStatisticsByCountry" IsCollection="1"/>
+			<Field Name="pageStatisticsByFunction" ClassName="PageStatisticsByFunction"  Type="PageStatisticsByFunction" IsCollection="1"/>
+			<Field Name="pageStatisticsByIndustry" ClassName="PageStatisticsByIndustry"  Type="PageStatisticsByIndustry" IsCollection="1"/>
+			<Field Name="pageStatisticsByRegion" ClassName="PageStatisticsByRegion"  Type="PageStatisticsByRegion" IsCollection="1"/>
+			<Field Name="pageStatisticsBySeniority" ClassName="PageStatisticsBySeniority"  Type="PageStatisticsBySeniority" IsCollection="1"/>
+			<Field Name="pageStatisticsByStaffCountRange" ClassName="PageStatisticsByStaffCountRange"  Type="PageStatisticsByStaffCountRange" IsCollection="1"/>
+			<Field Name="totalPageStatistics" ClassName="TotalPageStatistics"  Type="TotalPageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsByCountry" ClassName="PageStatisticsByCountry" AutoGenerateFieldSelectors="1">
+			<Field Name="country"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsByFunction" ClassName="PageStatisticsByFunction" AutoGenerateFieldSelectors="1">
+			<Field Name="function"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsByIndustry" ClassName="PageStatisticsByIndustry" AutoGenerateFieldSelectors="1">
+			<Field Name="industry"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsByRegion" ClassName="PageStatisticsByRegion" AutoGenerateFieldSelectors="1">
+			<Field Name="region"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsBySeniority" ClassName="PageStatisticsBySeniority" AutoGenerateFieldSelectors="1">
+			<Field Name="seniority"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="PageStatisticsByStaffCountRange" ClassName="PageStatisticsByStaffCountRange" AutoGenerateFieldSelectors="1">
+			<Field Name="staffCountRange"/>
+			<Field Name="pageStatistics" ClassName="PageStatistics" Type="PageStatistics" />
+		</ReturnType>
+    
+		<ReturnType Name="TotalPageStatistics" ClassName="TotalPageStatistics" AutoGenerateFieldSelectors="1">
+			<Field Name="clicks" ClassName="Clicks" Type="Clicks" />
+			<Field Name="views" ClassName="Views" Type="Views" />
+		</ReturnType>
+		
     <ReturnType Name="Clicks" ClassName="Clicks" AutoGenerateFieldSelectors="1">
-      <Field Name="careersPageClicks" ClassName="CareersPageClicks" Type="CareersPageClicks" />
-      <Field Name="mobileCareersPageClicks" ClassName="MobileCareersPageClicks" Type="MobileCareersPageClicks" />
-    </ReturnType>
-
+			<Field Name="careersPageClicks" ClassName="CareersPageClicks" Type="CareersPageClicks" />
+			<Field Name="mobileCareersPageClicks" ClassName="MobileCareersPageClicks" Type="MobileCareersPageClicks" />
+		</ReturnType>
+		
     <ReturnType Name="CareersPageClicks" ClassName="CareersPageClicks" AutoGenerateFieldSelectors="1">
-      <Field Name="careersPageBannerPromoClicks" Type="int" />
-      <Field Name="careersPageEmployeesClicks" Type="int" />
-      <Field Name="careersPageJobsClicks" Type="int" />
-      <Field Name="careersPagePromoLinksClicks" Type="int" />
-    </ReturnType>
-
+			<Field Name="careersPageBannerPromoClicks" Type="int" />
+			<Field Name="careersPageEmployeesClicks" Type="int" />
+			<Field Name="careersPageJobsClicks" Type="int" />
+			<Field Name="careersPagePromoLinksClicks" Type="int" />
+		</ReturnType>
+		
     <ReturnType Name="MobileCareersPageClicks" ClassName="MobileCareersPageClicks" AutoGenerateFieldSelectors="1">
-      <Field Name="careersPageEmployeesClicks" Type="int" />
-      <Field Name="careersPageJobsClicks" Type="int" />
-      <Field Name="careersPagePromoLinksClicks" Type="int" />
-    </ReturnType>
-
+			<Field Name="careersPageEmployeesClicks" Type="int" />
+			<Field Name="careersPageJobsClicks" Type="int" />
+			<Field Name="careersPagePromoLinksClicks" Type="int" />
+		</ReturnType>
+		
     <ReturnType Name="PageStatistics" ClassName="PageStatistics" AutoGenerateFieldSelectors="1">
-      <Field Name="views" ClassName="Views" Type="Views" />
-    </ReturnType>
-
+			<Field Name="views" ClassName="Views" Type="Views" />
+		</ReturnType>
+		
     <ReturnType Name="Views" ClassName="Views" AutoGenerateFieldSelectors="1">
-      <Field Name="allDesktopPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="allMobilePageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="allPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="careersPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="desktopCareersPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="desktopJobsPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="desktopLifeAtPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="desktopOverviewPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="jobsPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="lifeAtPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="mobileCareersPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="mobileJobsPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="mobileLifeAtPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="mobileOverviewPageViews" ClassName="PageViews" Type="PageViews" />
-      <Field Name="overviewPageViews" ClassName="PageViews" Type="PageViews" />
-    </ReturnType>
-
+			<Field Name="allDesktopPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="allMobilePageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="allPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="careersPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="desktopCareersPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="desktopJobsPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="desktopLifeAtPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="desktopOverviewPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="jobsPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="lifeAtPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="mobileCareersPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="mobileJobsPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="mobileLifeAtPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="mobileOverviewPageViews" ClassName="PageViews" Type="PageViews" />
+			<Field Name="overviewPageViews" ClassName="PageViews" Type="PageViews" />
+		</ReturnType>
+		
     <ReturnType Name="PageViews" ClassName="PageViews" AutoGenerateFieldSelectors="1">
-      <Field Name="pageViewsCount" Type="int" />
-    </ReturnType>
-    
-    <ReturnType Name="OrgFollowerStatisticsElement" ClassName="OrgFollowerStatisticsElement" AutoGenerateFieldSelectors="1">
-      <Field Name="followerCountsByStaffCountRange" ClassName="FollowerByStaffCountRange" Type="FollowerByStaffCountRange" IsCollection="1" />
-      <Field Name="followerCountsByFunction" ClassName="FollowerByFunction" Type="FollowerByFunction" IsCollection="1" />
-      <Field Name="followerCountsByIndustry" ClassName="FollowerByIndustry" Type="FollowerByIndustry" IsCollection="1" />
-      <Field Name="followerCountsByAssociationType" ClassName="FollowerCounts" Type="FollowerCounts" IsCollection="1" />
-      <Field Name="followerCountsBySeniority" ClassName="FollowerBySeniority" Type="FollowerBySeniority" IsCollection="1" />
-      <Field Name="followerCountsByRegion" ClassName="FollowerByRegion" Type="FollowerByRegion" IsCollection="1" />
-      <Field Name="followerCountsByCountry" ClassName="FollowerByCountry" Type="FollowerByCountry" IsCollection="1" />
-      <Field Name="organizationalEntity" />
-    </ReturnType>
-
+			<Field Name="pageViewsCount" Type="int" />
+		</ReturnType>
+		
+     <ReturnType Name="OrgFollowerStatisticsElement" ClassName="OrgFollowerStatisticsElement" AutoGenerateFieldSelectors="1">
+			<Field Name="followerCountsByStaffCountRange" ClassName="FollowerByStaffCountRange" Type="FollowerByStaffCountRange" IsCollection="1" />
+			<Field Name="followerCountsByFunction" ClassName="FollowerByFunction" Type="FollowerByFunction" IsCollection="1" />
+			<Field Name="followerCountsByIndustry" ClassName="FollowerByIndustry" Type="FollowerByIndustry" IsCollection="1" />
+			<Field Name="followerCountsByAssociationType" ClassName="FollowerCounts" Type="FollowerCounts" IsCollection="1" />
+			<Field Name="followerCountsBySeniority" ClassName="FollowerBySeniority" Type="FollowerBySeniority" IsCollection="1" />
+			<Field Name="followerCountsByRegion" ClassName="FollowerByRegion" Type="FollowerByRegion" IsCollection="1" />
+			<Field Name="followerCountsByCountry" ClassName="FollowerByCountry" Type="FollowerByCountry" IsCollection="1" />
+			<Field Name="organizationalEntity" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerByFunction" ClassName="FollowerByFunction" AutoGenerateFieldSelectors="1" >
-      <Field Name="function" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="function" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerByIndustry" ClassName="FollowerByIndustry" AutoGenerateFieldSelectors="1" >
-      <Field Name="industry" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="industry" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerBySeniority" ClassName="FollowerBySeniority" AutoGenerateFieldSelectors="1" >
-      <Field Name="seniority" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="seniority" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerByStaffCountRange" ClassName="FollowerByStaffCountRange" AutoGenerateFieldSelectors="1" >
-      <Field Name="staffCountRange" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="staffCountRange" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerByRegion" ClassName="FollowerByRegion" AutoGenerateFieldSelectors="1" >
-      <Field Name="region" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="region" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerByCountry" ClassName="FollowerByCountry" AutoGenerateFieldSelectors="1" >
-      <Field Name="country" />
-      <Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
-    </ReturnType>
-
+			<Field Name="country" />
+			<Field Name="followerCounts" ClassName="FollowerCounts" Type="FollowerCounts" />
+		</ReturnType>
+		
     <ReturnType Name="FollowerCounts" ClassName="FollowerCounts" AutoGenerateFieldSelectors="1" >
-      <Field Name="organicFollowerCount" Type="int"/>
-      <Field Name="paidFollowerCount" Type="int"/>
-    </ReturnType>
-  
-  </ApiGroup>
-
-  <ApiGroup Name="Shares">
-    <ApiMethod MethodName="Post" HttpMethod="POST"
-                   Path="/v2/shares"
-                   PostReturnType="Common.PostShare"
-                   ReturnType="Common.PostShareResult"
-                   RequiresUserAuthentication="1"
-                   UseFieldSelectors="0"
-                   Title="Share a profile/ company update based on an existing update."
-                   Remark="See https://developer.linkedin.com/docs/guide/v2/shares/share-api" />
-
-
-    <ApiMethod MethodName="GetShareStatistics" HttpMethod="GET"
-                     Path="/v2/organizationalEntityShareStatistics?q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]=urn:li:share:{ShareId}"
-                     ReturnType="ShareStatistic"
-                     RequiresUserAuthentication="1"
-                     UseFieldSelectors="0"
-                     Title="Fetch lifetime share statistics for two specific organization shares."
-                     Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/share-statistics" />
+			<Field Name="organicFollowerCount" Type="int"/>
+			<Field Name="paidFollowerCount" Type="int"/>
+		</ReturnType>
     
-    <ApiMethod MethodName="GetSharePostStatistics" HttpMethod="GET"
-                     Path="/v2/organizationalEntityShareStatistics?q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]={ShareId}"
-                     ReturnType="PostStatistic"
-                     RequiresUserAuthentication="1"
-                     UseFieldSelectors="0"
-                     Title="Fetch lifetime share post statistics for two specific organization share posts."
-                     Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/share-statistics" />
-					 
-	<ApiMethod MethodName="GetShareStatisticsPerDay" HttpMethod="GET"
-                     Path="/v2/organizationalEntityShareStatistics?q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]=urn:li:share:{ShareId}&amp;timeIntervals.timeGranularityType=DAY&amp;timeIntervals.timeRange.start={StartTimestamp}&amp;timeIntervals.timeRange.end={EndTimestamp}"
-                     ReturnType="ShareStatistic"
-                     RequiresUserAuthentication="1"
-                     UseFieldSelectors="0"
-                     Title="Fetch day based share statistics for two specific organization shares."
-                     Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/share-statistics" />
-	
-	<ApiMethod MethodName="GetSharePostStatisticsPerDay" HttpMethod="GET"
-                     Path="/v2/organizationalEntityShareStatistics?q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]={ShareId}&amp;timeIntervals.timeGranularityType=DAY&amp;timeIntervals.timeRange.start={StartTimestamp}&amp;timeIntervals.timeRange.end={EndTimestamp}"
-                     ReturnType="PostStatistic"
-                     RequiresUserAuthentication="1"
-                     UseFieldSelectors="0"
-                     Title="Fetch day based share post statistics for two specific organization share posts."
-                     Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/share-statistics" />
-
-    <ApiMethod MethodName="GetShares" HttpMethod="GET"
-                 Path="/v2/shares?q=owners&amp;owners={urn}&amp;sharesPerOwner={int SharesPerOwner = 1000}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-                 ReturnType="PostShares"
-                 RequiresUserAuthentication="1"
-                 UseFieldSelectors="0"
-                 Title="Shares will be ordered by created time with the latest one being the first. 
-                 We recommend setting the sharesPerOwner to 1,000 and count to 50, which means our endpoint will return up to 1,000 shares per owner while the total elements returned per response will be 50. If you want the next 50 of 1,000, you will have to paginate with start query parameter."
-                 Remark="See https://developer.linkedin.com/docs/guide/v2/shares/share-api#types" />
-
+	</ApiGroup>
+  
+	<ApiGroup Name="Shares">
+		<ApiMethod MethodName="Post" 
+               HttpMethod="POST"
+               Path="/v2/shares"
+               PostReturnType="Common.PostShare"
+               ReturnType="Common.PostShareResult"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Share a profile/ company update based on an existing update."
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/share-api" />
+		
+    <ApiMethod MethodName="GetShareStatistics" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityShareStatistics"
+               Query="q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]=urn:li:share:{ShareId}"
+               ReturnType="ShareStatistic"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Fetch lifetime share statistics for two specific organization shares."
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/share-statistics" />
+		
+    <ApiMethod MethodName="GetSharePostStatistics" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityShareStatistics"
+               Query="q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]={ShareId}"
+               ReturnType="PostStatistic"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Fetch lifetime share post statistics for two specific organization share posts."
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/share-statistics" />
+		
+    <ApiMethod MethodName="GetShareStatisticsPerDay" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityShareStatistics"
+               Query="q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]=urn:li:share:{ShareId}&amp;timeIntervals.timeGranularityType=DAY&amp;timeIntervals.timeRange.start={StartTimestamp}&amp;timeIntervals.timeRange.end={EndTimestamp}"
+               ReturnType="ShareStatistic"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Fetch day based share statistics for two specific organization shares."
+               Remark="See https://developer.linkedin.com/docs/guide/v2/organizations/share-statistics" />
+		
+    <ApiMethod MethodName="GetSharePostStatisticsPerDay" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/organizationalEntityShareStatistics"
+               Query="q=organizationalEntity&amp;organizationalEntity=urn:li:organization:{CompanyId}&amp;shares[0]={ShareId}&amp;timeIntervals.timeGranularityType=DAY&amp;timeIntervals.timeRange.start={StartTimestamp}&amp;timeIntervals.timeRange.end={EndTimestamp}"
+               ReturnType="PostStatistic"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Fetch day based share post statistics for two specific organization share posts."
+               Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/organizations/share-statistics" />
+		
+    <ApiMethod MethodName="GetShares" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/shares"
+               Query="q=owners&amp;owners={urn}&amp;sharesPerOwner={int SharesPerOwner = 1000}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+               ReturnType="PostShares"
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Title="Shares will be ordered by created time with the latest one being the first. 
+               We recommend setting the sharesPerOwner to 1,000 and count to 50, which means our endpoint will return up to 1,000 shares per owner 
+               while the total elements returned per response will be 50. If you want the next 50 of 1,000, you will have to paginate with start query parameter."
+               Remark="See https://developer.linkedin.com/docs/guide/v2/shares/share-api#types" />
+		
     <ReturnType Name="ShareStatistic" ClassName="ShareStatistic" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="ShareStatisticsElement" Type="ShareStatisticsElement" IsCollection="1"/>
-    </ReturnType>
-    
+			<Field Name="elements" ClassName="ShareStatisticsElement" Type="ShareStatisticsElement" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="PostStatistic" ClassName="PostStatistic" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="ShareStatisticsElement" Type="ShareStatisticsElement" IsCollection="1"/>
-    </ReturnType>
-
+			<Field Name="elements" ClassName="ShareStatisticsElement" Type="ShareStatisticsElement" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="ShareStatisticsElement" ClassName="ShareStatisticsElement" AutoGenerateFieldSelectors="1">
-      <Field Name="totalShareStatistics" ClassName="TotalShareStatistics" Type="TotalShareStatistics"/>
-      <Field Name="share" />
-      <Field Name="organizationalEntity" />
-    </ReturnType>
-
+			<Field Name="totalShareStatistics" ClassName="TotalShareStatistics" Type="TotalShareStatistics"/>
+			<Field Name="share" />
+			<Field Name="organizationalEntity" />
+		</ReturnType>
+		
     <ReturnType Name="totalShareStatistics" ClassName="TotalShareStatistics" AutoGenerateFieldSelectors="1" >
-      <Field Name="shareCount" Type="int"/>
-      <Field Name="clickCount" Type="int"/>
-      <Field Name="engagement" Type="double"/>
-      <Field Name="likeCount" Type="int"/>
-      <Field Name="impressionCount" Type="int"/>
-      <Field Name="commentCount" Type="int"/>
-    </ReturnType>
-
+			<Field Name="shareCount" Type="int"/>
+			<Field Name="clickCount" Type="int"/>
+			<Field Name="engagement" Type="double"/>
+			<Field Name="likeCount" Type="int"/>
+			<Field Name="impressionCount" Type="int"/>
+			<Field Name="commentCount" Type="int"/>
+		</ReturnType>
+		
     <ReturnType Name="PostShares" ClassName="PostShares" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="PostShareResult" Type="Common.PostShareResult" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-  </ApiGroup>
-
-
-  <ApiGroup Name="Videos">
-
-    <ApiMethod MethodName="GetVideoStatistics" HttpMethod="GET"
-                  Path="/v2/videoAnalytics?q=entity&amp;entity={videoPostId}&amp;type={type}&amp;aggregation={aggregation}"
-                  ReturnType="VideoAnalytics"
-                  RequiresUserAuthentication="1"
-                  UseFieldSelectors="0"
-                  Title="Fetch stats for video:
-                    aggregation: DAY, WEEK, ALL
-                    type: VIDEO_VIEW, VIEWER, TIME_WATCHED, TIME_WATCHED_FOR_VIDEO_VIEWS"
-                  Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/video-analytics-api" />
-
-    <ReturnType Name="VideoAnalytics" ClassName="VideoAnalytics" >      
-      <Field Name="elements" ClassName="VideoAnalyticsElement" Type="VideoAnalyticsElement" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="VideoAnalyticsElement" ClassName="VideoAnalyticsElement" >
-      <Field Name="entity" />
-      <Field Name="statisticsType" />
-      <Field Name="timeRange" ClassName="TimeRange" Type="TimeRange" />
-      <Field Name="value" Type="long" />
-    </ReturnType>
-
-    <ReturnType Name="TimeRange" ClassName="TimeRange" >
-      <Field Name="end" Type="long"/>
-      <Field Name="start" Type="long"/>
-    </ReturnType>
-  </ApiGroup>
-
+			<Field Name="elements" ClassName="PostShareResult" Type="Common.PostShareResult" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+	</ApiGroup>
   
-  <ApiGroup Name="Media">
-    <ApiMethod MethodName="Post" HttpMethod="POST"
-                  Path="/media/upload"
-                  PostReturnType="Common.MediaUploadData"
-                  ReturnType="MediaPostResult"
-                  RequiresUserAuthentication="1"
-                  UseFieldSelectors="0"
-                  Title="This api is deprecated. To upload rich media, attach the media as multipart/form-data."
-                  Remark="See https://developer.linkedin.com/docs/guide/v2/shares/rich-media-shares" />
-      
+	<ApiGroup Name="Videos">
+		<ApiMethod MethodName="GetVideoStatistics" 
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/videoAnalytics"
+              Query="q=entity&amp;entity={videoPostId}&amp;type={type}&amp;aggregation={aggregation}"
+              ReturnType="VideoAnalytics"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Title="Fetch stats for video:
+                aggregation: DAY, WEEK, ALL
+                type: VIDEO_VIEW, VIEWER, TIME_WATCHED, TIME_WATCHED_FOR_VIDEO_VIEWS"
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/video-analytics-api" />
+		
+    <ReturnType Name="VideoAnalytics" ClassName="VideoAnalytics" >
+			<Field Name="elements" ClassName="VideoAnalyticsElement" Type="VideoAnalyticsElement" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="VideoAnalyticsElement" ClassName="VideoAnalyticsElement" >
+			<Field Name="entity" />
+			<Field Name="statisticsType" />
+			<Field Name="timeRange" ClassName="TimeRange" Type="TimeRange" />
+			<Field Name="value" Type="long" />
+		</ReturnType>
+    
+		<ReturnType Name="TimeRange" ClassName="TimeRange" >
+			<Field Name="end" Type="long"/>
+			<Field Name="start" Type="long"/>
+		</ReturnType>
+    
+	</ApiGroup>
+  
+	<ApiGroup Name="Media">
+		<ApiMethod MethodName="Post" 
+              HttpMethod="POST"
+              Path="/media/upload"
+              PostReturnType="Common.MediaUploadData"
+              ReturnType="MediaPostResult"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Title="This api is deprecated. To upload rich media, attach the media as multipart/form-data."
+              Remark="See https://developer.linkedin.com/docs/guide/v2/shares/rich-media-shares" />
+		
     <ReturnType Name="MediaPostResult" ClassName="MediaPostResult" >
-      <Field Name="location" />
-    </ReturnType>
-  </ApiGroup>  
+			<Field Name="location" />
+		</ReturnType>
+	</ApiGroup>
   
-
-  <ApiGroup Name="UGCPost">
-    <ApiMethod MethodName="Post" HttpMethod="POST"
-                   Path="/v2/ugcPosts"
-                   PostReturnType="UGCPostData"
-                   ReturnType="string"
-                   RequiresUserAuthentication="1"
-                   IsValueType="1"
-                   IsUGCPostHandeling="1"
-                   UseFieldSelectors="0"
-                   Title="Upload a video asset to create a UGC Post."
-                   Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api" />
-
-    <ApiMethod MethodName="GetUGCPosts" HttpMethod="GET"
-                 Path="/v2/ugcPosts?q=authors&amp;authors=List({urn})&amp;start={int Start = 0}&amp;count={int Count = 50}"
-                 ReturnType="UGCPostItems"
-                 RequiresUserAuthentication="1"
-                 UseFieldSelectors="0"
-                 Title="Get posts with Video urns. UGCPosts will be ordered by created time with the latest one being the first. 
-                 We recommend setting the sharesPerOwner to 1,000 and count to 50, which means our endpoint will return up to 1,000 shares per owner while the total elements returned per response will be 50. If you want the next 50 of 1,000, you will have to paginate with start query parameter."               
-                 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#retrieve-ugc-posts" />
-
-    <ApiMethod MethodName="GetUGCPost" HttpMethod="GET"
-                 Path="/v2/ugcPosts/{urn}"
-                 ReturnType="UGCPostItemResult"
-                 RequiresUserAuthentication="1"
-                 UseFieldSelectors="0"
-                 Title="Get posts by urn."
-                 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#get-ugc-posts-by-urn" />
-
-    <ApiMethod MethodName="DeleteUGCPost" HttpMethod="DELETE"
-                 Path="/v2/ugcPosts/{urn}"
-                 RequiresUserAuthentication="1"
-                 UseFieldSelectors="0"               
-                 ReturnType="dynamic"
-                 IsValueType="1"
-                 Title="Get posts by urn."
-                 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#get-ugc-posts-by-urn" />
-
-    <ApiMethod MethodName="GetUGCVideo" HttpMethod="GET"
-                 Path="/v2/ugcPosts/{urn}?viewContext=AUTHOR&amp;projection=(specificContent(com.linkedin.ugc.ShareContent(media(*(media~:playableStreams)))))"            
-                 ReturnType="UGCVideo"
-                 RequiresUserAuthentication="1"
-                 UseFieldSelectors="0"
-                 Title="Get Video by urn"
-                 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#requesting-playable-video-streams" />
-
+	<ApiGroup Name="UGCPost">
+		<ApiMethod MethodName="Post" 
+              HttpMethod="POST"
+              Path="/v2/ugcPosts"
+              PostReturnType="UGCPostData"
+              ReturnType="string"
+              RequiresUserAuthentication="1"
+              IsValueType="1"
+              IsUGCPostHandeling="1"
+              UseFieldSelectors="0"
+              Title="Upload a video asset to create a UGC Post."
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api" />
+		
+    <ApiMethod MethodName="GetUGCPosts" 
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/ugcPosts"
+              Query="q=authors&amp;authors=List({urn})&amp;start={int Start = 0}&amp;count={int Count = 50}"
+              ReturnType="UGCPostItems"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Title="Get posts with Video urns. UGCPosts will be ordered by created time with the latest one being the first. 
+              We recommend setting the sharesPerOwner to 1,000 and count to 50, which means our endpoint will return up to 1,000 shares per owner while the total elements returned per response will be 50. If you want the next 50 of 1,000, you will have to paginate with start query parameter."               
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#retrieve-ugc-posts" />
+		
+    <ApiMethod MethodName="GetUGCPost" 
+              HttpMethod="GET" 
+              Path="/v2/ugcPosts/{urn}"
+              ReturnType="UGCPostItemResult"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Title="Get posts by urn."
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#get-ugc-posts-by-urn" />
+		
+    <ApiMethod MethodName="DeleteUGCPost" 
+              HttpMethod="DELETE"
+              Path="/v2/ugcPosts/{urn}"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"               
+              ReturnType="dynamic"
+              IsValueType="1"
+              Title="Get posts by urn."
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#get-ugc-posts-by-urn" />
+		
+    <ApiMethod MethodName="GetUGCVideo" 
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/ugcPosts/{urn}"
+              Query="viewContext=AUTHOR&amp;projection=(specificContent(com.linkedin.ugc.ShareContent(media(*(media~:playableStreams)))))"
+              ReturnType="UGCVideo"
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Title="Get Video by urn"
+              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api#requesting-playable-video-streams" />
+		
     <ReturnType Name="UGCVideo" ClassName="UGCVideo">
-      <Field Name="specificContent" Type="SpecificVideoContent" />
-    </ReturnType>
-
+			<Field Name="specificContent" Type="SpecificVideoContent" />
+		</ReturnType>
+		
     <ReturnType Name="SpecificVideoContent" ClassName="SpecificVideoContent">
-      <Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcVideoContent" Type="ComLinkedinUgcVideoContent" />
-    </ReturnType>
-
+			<Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcVideoContent" Type="ComLinkedinUgcVideoContent" />
+		</ReturnType>
+		
     <ReturnType Name="ComLinkedinUgcVideoContent" ClassName="ComLinkedinUgcVideoContent">
-      <Field Name="media" PropertyName="UGCMedia" Type="UGCVideoMedia"  IsCollection="1"/>
-    </ReturnType>
-
+			<Field Name="media" PropertyName="UGCMedia" Type="UGCVideoMedia"  IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCVideoMedia" ClassName="UGCVideoMedia">
-      <Field Name="media~" PropertyName="mediaData" Type="UGCMediaData" />
-      <Field Name="media" Type="string"/>
-      <Field Name="media!" PropertyName="mediaDataError" Type="UGCMediaDataError" />
-    </ReturnType>
-
+			<Field Name="media~" PropertyName="mediaData" Type="UGCMediaData" />
+			<Field Name="media" Type="string"/>
+			<Field Name="media!" PropertyName="mediaDataError" Type="UGCMediaDataError" />
+		</ReturnType>
+		
     <ReturnType Name="UGCMediaData" ClassName="UGCMediaData">
-      <Field Name="elements" Type="UGCMediaElements" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-    
+			<Field Name="elements" Type="UGCMediaElements" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+		
     <ReturnType Name="UGCMediaDataError" ClassName="UGCMediaDataError">
-      <Field Name="serviceErrorCode"/>
-      <Field Name="message"/>
-      <Field Name="status"/>
-    </ReturnType>
-
+			<Field Name="serviceErrorCode"/>
+			<Field Name="message"/>
+			<Field Name="status"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCMediaElements" ClassName="UGCMediaElements">
-      <Field Name="artifact"/>
-      <Field Name="authorizationMethod"/>
-      <Field Name="data" Type="UGCMediaType" />
-      <Field Name="identifiers" Type="UGCMediaIdentifiers" IsCollection="1"/>
-    </ReturnType>
-
+			<Field Name="artifact"/>
+			<Field Name="authorizationMethod"/>
+			<Field Name="data" Type="UGCMediaType" />
+			<Field Name="identifiers" Type="UGCMediaIdentifiers" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCMediaType" ClassName="UGCMediaType">
-      <Field Name="com.linkedin.digitalmedia.mediaartifact.Video" PropertyName="ComLinkedinUGCMediaType" Type="object" />
-    </ReturnType>
-    
+			<Field Name="com.linkedin.digitalmedia.mediaartifact.Video" PropertyName="ComLinkedinUGCMediaType" Type="object" />
+		</ReturnType>
+		
     <ReturnType Name="UGCMediaIdentifiers" ClassName="UGCMediaIdentifiers">
-      <Field Name="identifier" />
-      <Field Name="filename" />
-      <Field Name="file" />
-      <Field Name="size" Type="long" />
-      <Field Name="index" Type="long" />
-      <Field Name="mediaType" />
-      <Field Name="identifierExpiresInSeconds" Type="long"/>
-    </ReturnType>
-
+			<Field Name="identifier" />
+			<Field Name="filename" />
+			<Field Name="file" />
+			<Field Name="size" Type="long" />
+			<Field Name="index" Type="long" />
+			<Field Name="mediaType" />
+			<Field Name="identifierExpiresInSeconds" Type="long"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCPostItems" ClassName="UGCPostItems" AutoGenerateFieldSelectors="1">
-      <Field Name="elements" ClassName="UGCPostItemResult" Type="UGCPostItemResult" IsCollection="1"/>
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
+			<Field Name="elements" ClassName="UGCPostItemResult" Type="UGCPostItemResult" IsCollection="1"/>
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+		
     <ReturnType Name="UGCPostItemResult">
-      <Field Name="author" />
-      <Field Name="clientApplication" />
-      <Field Name="containerEntity" />
-      <Field Name="contentCertificationRecord" />
-      <Field Name="created" Type="Common.ShareTime"  />
-      <Field Name="deleted" Type="Common.ShareTime"  />
-      <Field Name="lastModified" Type="Common.ShareTime" />
-      <Field Name="firstPublishedAt" Type="long"  />
-      <Field Name="id" />
-      <Field Name="lifecycleState" />
-      <Field Name="origin" />
-      <Field Name="distribution" Type="Common.UGCDistribution" />
-      <Field Name="targetAudience" Type="TargetAudience"/>
-      <Field Name="visibility" Type="UGCPostvisibility" />
-      <Field Name="responseContext" Type="ResponseContext" />
-      <Field Name="specificContent" Type="UGCGetSpecificContent"/>
-    </ReturnType>
-    
+			<Field Name="author" />
+			<Field Name="clientApplication" />
+			<Field Name="containerEntity" />
+			<Field Name="contentCertificationRecord" />
+			<Field Name="created" Type="Common.ShareTime"  />
+			<Field Name="deleted" Type="Common.ShareTime"  />
+			<Field Name="lastModified" Type="Common.ShareTime" />
+			<Field Name="firstPublishedAt" Type="long"  />
+			<Field Name="id" />
+			<Field Name="lifecycleState" />
+			<Field Name="origin" />
+			<Field Name="distribution" Type="Common.UGCDistribution" />
+			<Field Name="targetAudience" Type="TargetAudience"/>
+			<Field Name="visibility" Type="UGCPostvisibility" />
+			<Field Name="responseContext" Type="ResponseContext" />
+			<Field Name="specificContent" Type="UGCGetSpecificContent"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCPostData" ClassName="UGCPostData">
-      <Field Name="author" />
-      <Field Name="lifecycleState" />
-      <Field Name="specificContent" Type="SpecificContent" />
-      <Field Name="targetAudience"  Type="TargetAudience"/>
-      <Field Name="visibility" Type="UGCPostvisibility"/>
-    </ReturnType>
-    
+			<Field Name="author" />
+			<Field Name="lifecycleState" />
+			<Field Name="specificContent" Type="SpecificContent" />
+			<Field Name="targetAudience"  Type="TargetAudience"/>
+			<Field Name="visibility" Type="UGCPostvisibility"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCPostResult" ClassName="UGCPostResult">
-      <Field Name="id" />
-    </ReturnType>
-
+			<Field Name="id" />
+		</ReturnType>
+		
     <ReturnType Name="responseContext" ClassName="ResponseContext">
-      <Field Name="parent"/>
-      <Field Name="root"/>
-    </ReturnType>
-    
+			<Field Name="parent"/>
+			<Field Name="root"/>
+		</ReturnType>
+		
     <ReturnType Name="SpecificContent" ClassName="SpecificContent">
-      <Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcShareContent" Type="ComLinkedinUgcShareContent" />
-    </ReturnType>
-    
+			<Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcShareContent" Type="ComLinkedinUgcShareContent" />
+		</ReturnType>
+		
     <ReturnType Name="comLinkedinUgcShareContent" ClassName="ComLinkedinUgcShareContent">
-      <Field Name="media" PropertyName="UGCMedia" Type="UGCMedia"  IsCollection="1"/>
-      <Field Name="shareCommentary" PropertyName="ShareCommentary" Type="UGCText" />
-      <Field Name="shareMediaCategory" />
-    </ReturnType>
-
+			<Field Name="media" PropertyName="UGCMedia" Type="UGCMedia"  IsCollection="1"/>
+			<Field Name="shareCommentary" PropertyName="ShareCommentary" Type="UGCText" />
+			<Field Name="shareMediaCategory" />
+		</ReturnType>
+		
     <ReturnType Name="SpecificContent" ClassName="UGCGetSpecificContent">
-      <Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcGetShareContent" Type="ComLinkedinUgcGetShareContent" />
-    </ReturnType>
-
+			<Field Name="com.linkedin.ugc.ShareContent" PropertyName="ComLinkedinUgcGetShareContent" Type="ComLinkedinUgcGetShareContent" />
+		</ReturnType>
+		
     <ReturnType Name="ComLinkedinUgcGetShareContent" ClassName="ComLinkedinUgcGetShareContent">
-      <Field Name="media" PropertyName="UGCMedia" Type="UGCMedia"  IsCollection="1"/>
-      <Field Name="shareCommentary" PropertyName="ShareCommentary" Type="UGCGetText" />
-      <Field Name="shareMediaCategory" />
-    </ReturnType>
-
+			<Field Name="media" PropertyName="UGCMedia" Type="UGCMedia"  IsCollection="1"/>
+			<Field Name="shareCommentary" PropertyName="ShareCommentary" Type="UGCGetText" />
+			<Field Name="shareMediaCategory" />
+		</ReturnType>
+		
     <ReturnType Name="UGCMedia" ClassName="UGCMedia">
-      <Field Name="description" PropertyName="UGCMediaDescription" Type="UGCText"/>
-      <Field Name="media" />
-      <Field Name="status" />
-      <Field Name="originalUrl" />
-      <Field Name="thumbnails" Type="ImageThumbnail" IsCollection="1"/>
-      <Field Name="landingPage" PropertyName="LandingPages" Type="LandingPage" />
-      <Field Name="title" PropertyName="UGCMediaTitle" Type="UGCText" />
-    </ReturnType>
-
+			<Field Name="description" PropertyName="UGCMediaDescription" Type="UGCText"/>
+			<Field Name="media" />
+			<Field Name="status" />
+			<Field Name="originalUrl" />
+			<Field Name="thumbnails" Type="ImageThumbnail" IsCollection="1"/>
+			<Field Name="landingPage" PropertyName="LandingPages" Type="LandingPage" />
+			<Field Name="title" PropertyName="UGCMediaTitle" Type="UGCText" />
+		</ReturnType>
+		
     <ReturnType Name="ImageThumbnail" ClassName="ImageThumbnail">
-      <Field Name="altText" />
-      <Field Name="height" Type="int"/>
-      <Field Name="size" Type="long"/>
-      <Field Name="url" />
-      <Field Name="width" Type="int"/>      
-    </ReturnType>
-
+			<Field Name="altText" />
+			<Field Name="height" Type="int"/>
+			<Field Name="size" Type="long"/>
+			<Field Name="url" />
+			<Field Name="width" Type="int"/>
+		</ReturnType>
+		
     <ReturnType Name="UGCText" ClassName="UGCText">
-      <Field Name="attributes" Type="UGCAnnotations" IsCollection="1" />
-      <Field Name="text" />
-    </ReturnType>
-
+			<Field Name="attributes" Type="UGCAnnotations" IsCollection="1" />
+			<Field Name="text" />
+		</ReturnType>
+		
     <ReturnType Name="UGCText" ClassName="UGCGetText">
-      <Field Name="attributes" Type="UGCAnnotations" IsCollection="1" />
-      <Field Name="text" />
-    </ReturnType>
-    
+			<Field Name="attributes" Type="UGCAnnotations" IsCollection="1" />
+			<Field Name="text" />
+		</ReturnType>
+		
     <ReturnType Name="UGCAnnotations" ClassName="UGCAnnotations">
-      <Field Name="value" Type="valueAnnotation"/>
-      <Field Name="length" Type="int" />
-      <Field Name="start" Type="int" />
-    </ReturnType>
-
+			<Field Name="value" Type="valueAnnotation"/>
+			<Field Name="length" Type="int" />
+			<Field Name="start" Type="int" />
+		</ReturnType>
+		
     <ReturnType Name="valueAnnotation" ClassName="valueAnnotation">
-      <Field Name="com.linkedin.common.CompanyAttributedEntity" PropertyName="CompanyAttributedEntity" Type="CompanyAttributedEntity" />
-      <Field Name="com.linkedin.common.MemberAttributedEntity" PropertyName="MemberAttributedEntity" Type="MemberAttributedEntity" />
-    </ReturnType>
-
+			<Field Name="com.linkedin.common.CompanyAttributedEntity" PropertyName="CompanyAttributedEntity" Type="CompanyAttributedEntity" />
+			<Field Name="com.linkedin.common.MemberAttributedEntity" PropertyName="MemberAttributedEntity" Type="MemberAttributedEntity" />
+		</ReturnType>
+		
     <ReturnType Name="CompanyAttributedEntity" ClassName="CompanyAttributedEntity">
-      <Field Name="company"/>
-    </ReturnType>
-
+			<Field Name="company"/>
+		</ReturnType>
+		
     <ReturnType Name="MemberAttributedEntity" ClassName="MemberAttributedEntity">
-      <Field Name="member"/>
-    </ReturnType>
-
+			<Field Name="member"/>
+		</ReturnType>
+		
     <ReturnType Name="LandingPage" ClassName="LandingPage">
-      <Field Name="landingPageTitle" />
-      <Field Name="landingPageUrl" />
-    </ReturnType>
-    
-
+			<Field Name="landingPageTitle" />
+			<Field Name="landingPageUrl" />
+		</ReturnType>
+		
     <ReturnType Name="TargetAudience" ClassName="TargetAudience">
-      <Field Name="targetedEntities" PropertyName="TargetedEntities" Type="Common.LinkedInTargetedEntity" IsCollection="1" />
-    </ReturnType>
-    
-    
+			<Field Name="targetedEntities" PropertyName="TargetedEntities" Type="Common.LinkedInTargetedEntity" IsCollection="1" />
+		</ReturnType>
+		
     <ReturnType Name="UGCPostvisibility" ClassName="UGCPostvisibility">
-      <Field Name="com.linkedin.ugc.MemberNetworkVisibility" PropertyName="comLinkedinUgcMemberNetworkVisibility" />
-    </ReturnType>
-
-  </ApiGroup>
-
-  <ApiGroup Name="SocialActions">
-    <ApiMethod MethodName="GetCommentsByUrn"
-             HttpMethod="GET"
-             Path="/v2/socialActions/{urn}/comments?count={int Count = 50}&amp;start={int Start = 0}"
+			<Field Name="com.linkedin.ugc.MemberNetworkVisibility" PropertyName="comLinkedinUgcMemberNetworkVisibility" />
+		</ReturnType>
+    
+	</ApiGroup>
+  
+	<ApiGroup Name="SocialActions">
+		<ApiMethod MethodName="GetCommentsByUrn"
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/socialActions/{urn}/comments"
+             Query="count={int Count = 50}&amp;start={int Start = 0}"
              SkipUrlParamsEscape="urn"
              ReturnType="Comments"
              RequiresUserAuthentication="1"
              UseFieldSelectors="0"
              Title="Retrieve Comments by Share/ UGC/ Comment"
              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#retrieve-comments-on-shares" />
-    
+		
     <ApiMethod MethodName="GetCommentsOnShare"
-             HttpMethod="GET"
-             Path="/v2/socialActions/urn:li:share:{ShareId}/comments?count={int Count = 50}&amp;start={int Start = 0}"  
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/socialActions/urn:li:share:{ShareId}/comments"  
+             Query="count={int Count = 50}&amp;start={int Start = 0}"
              ReturnType="Comments"
              RequiresUserAuthentication="1"
              UseFieldSelectors="0"
              Title="Retrieve Comments on Shares"
              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#retrieve-comments-on-shares" />
-
+		
     <ApiMethod MethodName="GetCommentsOnUGCPost"
-             HttpMethod="GET"
-             Path="/v2/socialActions/urn:li:ugcPost:{PostId}/comments?count={int Count = 50}&amp;start={int Start = 0}"             
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/socialActions/urn:li:ugcPost:{PostId}/comments"  
+             Query="count={int Count = 50}&amp;start={int Start = 0}"
              ReturnType="Comments"
              RequiresUserAuthentication="1"
              UseFieldSelectors="0"
              Title="Retrieve Comments on UGC Posts"
              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#retrieve-comments-on-shares" />
-    
+		
     <ApiMethod MethodName="GetCommentsOnComment"
-             HttpMethod="GET"
-             Path="/v2/socialActions/urn:li:comment:{CommentId}/comments?count={int Count = 50}&amp;start={int Start = 0}"
+             HttpMethod="POST" RequiresTunneling="1"
+             SkipUrlParamsEscape="CommentId"
+             Path="/v2/socialActions/urn:li:comment:{CommentId}/comments"
+             Query="count={int Count = 50}&amp;start={int Start = 0}"
              ReturnType="Comments"
              RequiresUserAuthentication="1"
              UseFieldSelectors="0"
              Title="Retrieve Comments on Comment"
              Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#retrieve-comments-on-shares" />
-
+		
     <ApiMethod MethodName="CreateFirstLevelCommentOnUrn"
              HttpMethod="POST"
              Path="/v2/socialActions/{urn}/comments"
@@ -821,7 +829,7 @@
              UseFieldSelectors="0"
              Title="Create Comment on Share/ UGC/ Comment"
              Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-comment" />
-
+		
     <ApiMethod MethodName="CreateCommentOnUrn"
              HttpMethod="POST"
              Path="/v2/socialActions/{urn}/comments"
@@ -832,7 +840,7 @@
              UseFieldSelectors="0"
              Title="Create Comment on Share/ UGC/ Comment"
              Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-comment" />
-
+		
     <ApiMethod MethodName="CreateCommentOnShare"
            HttpMethod="POST"
            Path="/v2/socialActions/urn:li:share:{ShareId}/comments"
@@ -842,7 +850,7 @@
            UseFieldSelectors="0"
            Title="Create Comment on Share"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-comment" />
-
+		
     <ApiMethod MethodName="CreateCommentOnUGCPost"
            HttpMethod="POST"
            Path="/v2/socialActions/urn:li:ugcPost:{PostId}/comments"
@@ -852,17 +860,18 @@
            UseFieldSelectors="0"
            Title="Create Comment on UGC Posts"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-comment" />
-
+		
     <ApiMethod MethodName="CreateCommentOnComment"
            HttpMethod="POST"
            Path="/v2/socialActions/urn:li:comment:{CommentId}/comments"
            PostReturnType="CreateCommentRequest"
            ReturnType="CommentResult"
            RequiresUserAuthentication="1"
+           SkipUrlParamsEscape="CommentId"
            UseFieldSelectors="0"
            Title="Create Comment on Comment"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-comment" />
-
+		
     <ApiMethod MethodName="CreateLike"
            HttpMethod="POST"
            Path="/v2/socialActions/{urn}/likes"
@@ -873,7 +882,7 @@
            UseFieldSelectors="0"
            Title="Create a Like"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#create-a-like-on-a-share" />
-    
+		
     <ApiMethod MethodName="DeleteLike"
            HttpMethod="DELETE"
            ReturnType="dynamic"
@@ -884,7 +893,7 @@
            UseFieldSelectors="0"
            Title="Delete a Like"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#delete-a-like" />
-    
+		
     <ApiMethod MethodName="DeleteComment"
            HttpMethod="DELETE"
            ReturnType="dynamic"
@@ -895,72 +904,70 @@
            UseFieldSelectors="0"
            Title="Delete Comment"
            Remark="https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/network-update-social-actions#delete-comment-from-share" />
-    
+		
     <ReturnType Name="Comments" ClassName="Comments">
-      <Field Name="elements" ClassName="CommentResult" Type="CommentResult" IsCollection="1" />
-      <Field Name="paging" ClassName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
+			<Field Name="elements" ClassName="CommentResult" Type="CommentResult" IsCollection="1" />
+			<Field Name="paging" ClassName="Paging" Type="Common.Paging" />
+		</ReturnType>
+		
     <ReturnType Name="CommentResult" ClassName="CommentResult">
-      <Field Name="actor" />
-      <Field Name="commentsSummary" Type="CommentsSummary"/>
-      <Field Name="parentComment" />
-      <Field Name="agent" />
-      <Field Name="created" Type="Common.ShareTime" />
-      <Field Name="lastModified" Type="Common.ShareTime" />
-      <Field Name="id" PropertyName="Id" />
-      <Field Name="message" Type="CommentMessage" />
-      <Field Name="$URN"  PropertyName="Urn" />
-      <Field Name="content"  Type="CommentContent" IsCollection="1"/>
-      <Field Name="object" />
-    </ReturnType>
-
+			<Field Name="actor" />
+			<Field Name="commentsSummary" Type="CommentsSummary"/>
+			<Field Name="parentComment" />
+			<Field Name="agent" />
+			<Field Name="created" Type="Common.ShareTime" />
+			<Field Name="lastModified" Type="Common.ShareTime" />
+			<Field Name="id" PropertyName="Id" />
+			<Field Name="message" Type="CommentMessage" />
+			<Field Name="$URN"  PropertyName="Urn" />
+			<Field Name="content"  Type="CommentContent" IsCollection="1"/>
+			<Field Name="object" />
+		</ReturnType>
+		
     <ReturnType Name="CommentsSummary" ClassName="CommentsSummary">
-      <Field Name="totalFirstLevelComments" Type ="int"/>
-      <Field Name="aggregatedTotalComments" Type ="int"/>
-      <Field Name="selectedComments" Type="string" IsCollection="1"/>
-    </ReturnType>
-
+			<Field Name="totalFirstLevelComments" Type ="int"/>
+			<Field Name="aggregatedTotalComments" Type ="int"/>
+			<Field Name="selectedComments" Type="string" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="CommentMessage" ClassName="CommentMessage">
-      <Field Name="text" />
-      <Field Name="attributes" IsCollection="1" Type="dynamic"/>
-    </ReturnType>
-
+			<Field Name="text" />
+			<Field Name="attributes" IsCollection="1" Type="dynamic"/>
+		</ReturnType>
+		
     <ReturnType Name="CommentContent" ClassName="CommentContent">
-      <Field Name="type" PropertyName="ContentType"/>
-      <Field Name="url"/>
-    </ReturnType>
-
+			<Field Name="type" PropertyName="ContentType"/>
+			<Field Name="url"/>
+		</ReturnType>
+		
     <ReturnType Name="CreateCommentRequest" ClassName="CreateCommentRequest">
-      <Field Name="actor" />
-      <Field Name="message" Type="CommentMessage" />
-      <Field Name="parentComment" />
-    </ReturnType>
-
+			<Field Name="actor" />
+			<Field Name="message" Type="CommentMessage" />
+			<Field Name="parentComment" />
+		</ReturnType>
+		
     <ReturnType Name="CreateFirstLevelCommentRequest" ClassName="CreateFirstLevelCommentRequest">
-      <Field Name="actor" />
-      <Field Name="message" Type="CommentMessage" />
-    </ReturnType>
-    
+			<Field Name="actor" />
+			<Field Name="message" Type="CommentMessage" />
+		</ReturnType>
+		
     <ReturnType Name="CreateLikeRequest" ClassName="CreateLikeRequest">
-      <Field Name="actor" />
-      <Field Name="object" />
-    </ReturnType>
-    
+			<Field Name="actor" />
+			<Field Name="object" />
+		</ReturnType>
+		
     <ReturnType Name="CreateLikeResult" ClassName="CreateLikeResult">
-      <Field Name="$URN"  PropertyName="Urn" />
-      <Field Name="actor" />
-      <Field Name="agent" />
-      <Field Name="created" Type="Common.ShareTime" />
-      <Field Name="lastModified" Type="Common.ShareTime" />
-      <Field Name="object" />
-    </ReturnType>
-
-  </ApiGroup>
-
-
-  <ApiGroup Name="Asset">
-    <ApiMethod MethodName="RegisterUpload" 
+			<Field Name="$URN"  PropertyName="Urn" />
+			<Field Name="actor" />
+			<Field Name="agent" />
+			<Field Name="created" Type="Common.ShareTime" />
+			<Field Name="lastModified" Type="Common.ShareTime" />
+			<Field Name="object" />
+		</ReturnType>
+	</ApiGroup>
+  
+	<ApiGroup Name="Asset">
+		<ApiMethod MethodName="RegisterUpload" 
                HttpMethod="POST"
                Path="/v2/assets?action=registerUpload"
                PostReturnType="RegisterUploadRequest"
@@ -969,8 +976,8 @@
                UseFieldSelectors="0"
                Title="To upload video."
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/vector-asset-api#upload-the-asset" />
-
-    <ApiMethod MethodName="UploadAsset" 
+		
+		<ApiMethod MethodName="UploadAsset" 
                HttpMethod="POST"
                Path="{UploadUrl}"
                PostReturnType="UploadAssetRequest"
@@ -980,7 +987,7 @@
                UseFieldSelectors="0"
                Title="To upload video. Gets back the status code of the request."
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/vector-asset-api#upload-the-asset" />
-    
+		
     <ApiMethod MethodName="UploadImageAsset"
                HttpMethod="POST"
                Path="{UploadUrl}"
@@ -992,16 +999,16 @@
                UseFieldSelectors="0"
                Title="To upload an image. Gets back the empty string"
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/vector-asset-api#upload-the-image" />
-    
+		
     <ApiMethod MethodName="GetAsset" 
-               HttpMethod="GET"
+               HttpMethod="GET" 
                Path="/v2/assets/{AssetId}"
                ReturnType="AssetResult"
                RequiresUserAuthentication="1"
                UseFieldSelectors="0"
                Title="Depending on content size, it might take a few minutes for the upload to complete."
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/vector-asset-api#upload-the-asset" />
-
+		
     <ApiMethod MethodName="CompleteMultiPartUpload"
                HttpMethod="POST"
                Path="/v2/assets?action=completeMultiPartUpload"
@@ -1013,110 +1020,395 @@
                UseFieldSelectors="0"
                Title="To upload video."
                Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/vector-asset-api#upload-the-asset" />
-
-
-
+		
     <ReturnType Name="RegisterUploadRequest" ClassName="RegisterUploadRequest">
-      <Field Name="registerUploadRequest" PropertyName="RegisterUploadRequestData" Type="RegisterUploadRequestData"/>
-    </ReturnType>
+			<Field Name="registerUploadRequest" PropertyName="RegisterUploadRequestData" Type="RegisterUploadRequestData"/>
+		</ReturnType>
+		
     <ReturnType Name="RegisterUploadRequestData" ClassName="RegisterUploadRequestData" >
-      <Field Name="supportedUploadMechanism" PropertyName="SupportedUploadMechanism" IsCollection="1"/>
-      <Field Name="fileSize" PropertyName="FileSize" Type="long?"/>
-      <Field Name="owner" PropertyName="Owner" />
-      <Field Name="recipes" PropertyName="Recipes" IsCollection="1"/>
-      <Field Name="serviceRelationships" PropertyName="ServiceRelationships" Type="ServiceRelationship" IsCollection="1"/>
-    </ReturnType>
+			<Field Name="supportedUploadMechanism" PropertyName="SupportedUploadMechanism" IsCollection="1"/>
+			<Field Name="fileSize" PropertyName="FileSize" Type="long?"/>
+			<Field Name="owner" PropertyName="Owner" />
+			<Field Name="recipes" PropertyName="Recipes" IsCollection="1"/>
+			<Field Name="serviceRelationships" PropertyName="ServiceRelationships" Type="ServiceRelationship" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="ServiceRelationship" ClassName="ServiceRelationship">
-      <Field Name="identifier" PropertyName="Identifier" />
-      <Field Name="relationshipType" PropertyName="RelationshipType" />
-    </ReturnType>
-    
-          
+			<Field Name="identifier" PropertyName="Identifier" />
+			<Field Name="relationshipType" PropertyName="RelationshipType" />
+		</ReturnType>
+		
     <ReturnType Name="RegisterUploadResult" ClassName="RegisterUploadResult" >
-      <Field Name="value" PropertyName="Value" Type="RegisterUploadResultValue"/>
-    </ReturnType>
+			<Field Name="value" PropertyName="Value" Type="RegisterUploadResultValue"/>
+		</ReturnType>
+		
     <ReturnType Name="RegisterUploadResultValue" ClassName="RegisterUploadResultValue" >
-      <Field Name="asset" PropertyName="Asset" />
-      <Field Name="mediaArtifact" PropertyName="MediaArtifact" />
-      <Field Name="uploadMechanism" PropertyName="UploadMechanism" Type="UploadMechanism" />
-    </ReturnType>
+			<Field Name="asset" PropertyName="Asset" />
+			<Field Name="mediaArtifact" PropertyName="MediaArtifact" />
+			<Field Name="uploadMechanism" PropertyName="UploadMechanism" Type="UploadMechanism" />
+		</ReturnType>
+		
     <ReturnType Name="UploadMechanism" ClassName="UploadMechanism" >
-      <Field Name="com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest" PropertyName="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest" Type="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest"/>
-      <Field Name="com.linkedin.digitalmedia.uploading.MultipartUpload" PropertyName="ComLinkedinDigitalmediaUploadingMultipartUpload" Type="ComLinkedinDigitalmediaUploadingMultipartUpload"/>
-    </ReturnType>
+			<Field Name="com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest" PropertyName="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest" Type="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest"/>
+			<Field Name="com.linkedin.digitalmedia.uploading.MultipartUpload" PropertyName="ComLinkedinDigitalmediaUploadingMultipartUpload" Type="ComLinkedinDigitalmediaUploadingMultipartUpload"/>
+		</ReturnType>
+		
     <ReturnType Name="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest" ClassName="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest" >
-      <Field Name="headers" PropertyName="Headers" Type="Headers"/>
-      <Field Name="uploadUrl" PropertyName="UploadUrl"/>
-    </ReturnType>
+			<Field Name="headers" PropertyName="Headers" Type="Headers"/>
+			<Field Name="uploadUrl" PropertyName="UploadUrl"/>
+		</ReturnType>
+		
     <ReturnType Name="ComLinkedinDigitalmediaUploadingMultipartUpload" ClassName="ComLinkedinDigitalmediaUploadingMultipartUpload" >
-      <Field Name="metadata" PropertyName="Metadata"/>
-      <Field Name="partUploadRequests" PropertyName="PartUploadRequests" Type="PartUploadRequest" IsCollection="1"/>
-    </ReturnType>
+			<Field Name="metadata" PropertyName="Metadata"/>
+			<Field Name="partUploadRequests" PropertyName="PartUploadRequests" Type="PartUploadRequest" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="PartUploadRequest" ClassName="PartUploadRequest" >
-      <Field Name="headers" PropertyName="Headers" Type="Headers"/>
-      <Field Name="urlExpiresAt" PropertyName="UrlExpiresAt" Type="long"/>
-      <Field Name="byteRange" PropertyName="ByteRange" Type="ByteRange"/>
-      <Field Name="url" PropertyName="Url" />
-    </ReturnType>
+			<Field Name="headers" PropertyName="Headers" Type="Headers"/>
+			<Field Name="urlExpiresAt" PropertyName="UrlExpiresAt" Type="long"/>
+			<Field Name="byteRange" PropertyName="ByteRange" Type="ByteRange"/>
+			<Field Name="url" PropertyName="Url" />
+		</ReturnType>
+		
     <ReturnType Name="Headers" ClassName="Headers" >
-      <Field Name="Content-Type" PropertyName="ContentType"/>
-      <Field Name="Content-Length" PropertyName="ContentLength"/>
-      <Field Name="x-amz-server-side-encryption" PropertyName="xAmzServerSideEncryption" />
-      <Field Name="x-amz-server-side-encryption-aws-kms-key-id" PropertyName="xAmzServerSideEncryptionAwsKmsKeyId" />
-    </ReturnType>
+			<Field Name="Content-Type" PropertyName="ContentType"/>
+			<Field Name="Content-Length" PropertyName="ContentLength"/>
+			<Field Name="x-amz-server-side-encryption" PropertyName="xAmzServerSideEncryption" />
+			<Field Name="x-amz-server-side-encryption-aws-kms-key-id" PropertyName="xAmzServerSideEncryptionAwsKmsKeyId" />
+		</ReturnType>
+		
     <ReturnType Name="ByteRange" ClassName="ByteRange" >
-      <Field Name="lastByte" PropertyName="LastByte" Type="long"/>
-      <Field Name="firstByte" PropertyName="FirstByte" Type="long"/>
-    </ReturnType>
-
+			<Field Name="lastByte" PropertyName="LastByte" Type="long"/>
+			<Field Name="firstByte" PropertyName="FirstByte" Type="long"/>
+		</ReturnType>
+		
     <ReturnType Name="CompleteMultipartUploadRequest" ClassName="CompleteMultipartUploadRequest">
-      <Field Name="completeMultipartUploadRequest" PropertyName="CompleteMultipartUploadRequestData" Type="CompleteMultipartUploadRequestData"/>
-    </ReturnType>
+			<Field Name="completeMultipartUploadRequest" PropertyName="CompleteMultipartUploadRequestData" Type="CompleteMultipartUploadRequestData"/>
+		</ReturnType>
+	
     <ReturnType Name="CompleteMultipartUploadRequestData" ClassName="CompleteMultipartUploadRequestData">
-      <Field Name="mediaArtifact" PropertyName="MediaArtifact" />
-      <Field Name="metadata" PropertyName="Metadata" />
-      <Field Name="partUploadResponses" PropertyName="PartUploadResponses" Type="PartUploadResponse" IsCollection="1"/>
-    </ReturnType>
+			<Field Name="mediaArtifact" PropertyName="MediaArtifact" />
+			<Field Name="metadata" PropertyName="Metadata" />
+			<Field Name="partUploadResponses" PropertyName="PartUploadResponses" Type="PartUploadResponse" IsCollection="1"/>
+		</ReturnType>
+		
     <ReturnType Name="PartUploadResponse" ClassName="PartUploadResponse">
-      <Field Name="headers" PropertyName="Headers" Type="PartUploadResponseHeaders"/>
-      <Field Name="httpStatusCode" PropertyName="HttpStatusCode" Type="int"/>      
-    </ReturnType>
+			<Field Name="headers" PropertyName="Headers" Type="PartUploadResponseHeaders"/>
+			<Field Name="httpStatusCode" PropertyName="HttpStatusCode" Type="int"/>
+		</ReturnType>
+		
     <ReturnType Name="PartUploadResponseHeaders" ClassName="PartUploadResponseHeaders">
-      <Field Name="ETag" PropertyName="ETag" />
-    </ReturnType>
-
+			<Field Name="ETag" PropertyName="ETag" />
+		</ReturnType>
+		
     <ReturnType Name="CompleteMultipartUploadResult" ClassName="CompleteMultipartUploadResult" >
-      <Field Name="data" Type="object"/>
-    </ReturnType>
-  
-  
+			<Field Name="data" Type="object"/>
+		</ReturnType>
+		
     <ReturnType Name="UploadAssetRequest" ClassName="UploadAssetRequest" IsOctetStream="1">
-      <Field Name="requestHeaders" PropertyName="RequestHeaders" Type="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest"/>
-      <Field Name="data" PropertyName="Data" Type="byte[]"/>
-    </ReturnType>   
+			<Field Name="requestHeaders" PropertyName="RequestHeaders" Type="ComLinkedinDigitalmediaUploadingMediaUploadHttpRequest"/>
+			<Field Name="data" PropertyName="Data" Type="byte[]"/>
+		</ReturnType>
+		
     <ReturnType Name="UploadAssetResult" ClassName="UploadAssetResponse">
-      <Field Name="data" PropertyName="Data" Type="object"/>
-    </ReturnType>
-  
-  
+			<Field Name="data" PropertyName="Data" Type="object"/>
+		</ReturnType>
+		
     <ReturnType Name="AssetResult" ClassName="AssetResult">
-      <Field Name="created" PropertyName="Created" Type="long"/>
-      <Field Name="lastModified" PropertyName="LastModified" Type="long"/>
-      <Field Name="id" PropertyName="Id" />
-      <Field Name="mediaTypeFamily" PropertyName="MediaTypeFamily" />
-      <Field Name="recipes" PropertyName="Recipes" Type="Recipe" IsCollection="1"/>
-      <Field Name="serviceRelationships" PropertyName="ServiceRelationship" Type="ServiceRelationship" IsCollection="1"/>
-      <Field Name="status" PropertyName="Status" />
-    </ReturnType>
-  
+			<Field Name="created" PropertyName="Created" Type="long"/>
+			<Field Name="lastModified" PropertyName="LastModified" Type="long"/>
+			<Field Name="id" PropertyName="Id" />
+			<Field Name="mediaTypeFamily" PropertyName="MediaTypeFamily" />
+			<Field Name="recipes" PropertyName="Recipes" Type="Recipe" IsCollection="1"/>
+			<Field Name="serviceRelationships" PropertyName="ServiceRelationship" Type="ServiceRelationship" IsCollection="1"/>
+			<Field Name="status" PropertyName="Status" />
+		</ReturnType>
+		
     <ReturnType Name="Recipe" ClassName="Recipe">
-      <Field Name="recipe" PropertyName="RecipeURN" />
-      <Field Name="status" PropertyName="Status" />
-    </ReturnType>
+			<Field Name="recipe" PropertyName="RecipeURN" />
+			<Field Name="status" PropertyName="Status" />
+		</ReturnType>
+    
+	</ApiGroup>
   
-  </ApiGroup>
-
-
+	<ApiGroup Name="Targeting">
+		<ApiMethod MethodName="GetIndustries" 
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/industries" 
+               Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}&amp;" 
+               ReturnType="Industries"
+               Title="Industry taxonomy is used to standardize data across the LinkedIn platform. Use this API to retrieve standardized URNs and their names."
+               RequiresUserAuthentication="1" 
+               UseFieldSelectors="0"
+               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/industries#GET_ALL"/>
+    
+		<ApiMethod MethodName="GetJobFunctions"
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/functions"
+               Query="locale={dataLocale}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+               ReturnType="JobFunctions"
+               Title=""
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/functions   locale e.g.: en_US"/>
+		
+    <ApiMethod MethodName="GetCountryGroups"
+               HttpMethod="POST" RequiresTunneling="1" 
+               Path="/v2/countryGroups"
+               Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+               ReturnType="CountryGroups"
+               Title=""
+               RequiresUserAuthentication="1"
+               UseFieldSelectors="0"
+               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/country-groups"/>
+		
+    <ApiMethod MethodName="GetCountries"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/countries"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={countryGroup}&amp;countryGroup={countryGroupURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+              ReturnType="Countries"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
+		
+    <ApiMethod MethodName="GetStates"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/states"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={country}&amp;country={countryURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+              ReturnType="States"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
+		
+    <ApiMethod MethodName="GetRegions"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/regions"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={states}&amp;states={statesURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+              ReturnType="Regions"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/regions"/>
+		
+    <ApiMethod MethodName="GetSeniorities"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/seniorities"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}"
+              ReturnType="Seniorities"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/seniorities"/>
+		
+    <ApiMethod MethodName="GetAudienceCounts"
+							 HttpMethod="POST" RequiresTunneling="1" 
+							 Path="/v2/audienceCountsV2"
+               Query="q=targetingCriteriaV2&amp;targetingCriteria={targetingCriteria}"
+							 ReturnType="AudienceCounts"
+							 Title="Forecast the reach of the target audience"
+							 RequiresUserAuthentication="1"
+							 UseFieldSelectors="0"
+							 UseRestliProtocol ="1"
+							 SkipUrlParamsEscape="targetingCriteria"
+							 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/ads/advertising-targeting/audience-counts"/>
+		
+		<ApiMethod MethodName="GetTargetingFacets"
+							 HttpMethod="GET" 
+							 Path="/v2/adTargetingFacets"
+							 ReturnType="TargetingFacets"
+							 Title="Forecast the reach of your target audience"
+							 RequiresUserAuthentication="1"
+							 UseFieldSelectors="0"
+							 Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/ads/advertising-targeting/audience-counts"/>
+		
+    <ApiMethod MethodName="GetAllCountries"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/countries"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}"
+              ReturnType="Countries"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
+		
+		<ApiMethod MethodName="GetAllStates"
+							HttpMethod="POST" RequiresTunneling="1" 
+							Path="/v2/states"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}"
+							ReturnType="States"
+							Title=""
+							RequiresUserAuthentication="1"
+							UseFieldSelectors="0"
+							Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
+		
+    <ApiMethod MethodName="GetAllRegions"
+              HttpMethod="POST" RequiresTunneling="1" 
+              Path="/v2/regions"
+              Query="locale.language={dataLanguage}&amp;locale.country={dataCountry}"
+              ReturnType="Regions"
+              Title=""
+              RequiresUserAuthentication="1"
+              UseFieldSelectors="0"
+              Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/regions"/>
+		
+    <ReturnType Name="TargetingFacets" ClassName="TargetingFacets" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="dynamic" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="AudienceCounts" ClassName="AudienceCounts" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="AudienceCountElements" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="AudienceCountElements" ClassName="AudienceCountElements" AutoGenerateFieldSelectors="1">
+			<Field Name="active"  PropertyName="Active" Type="int"/>
+			<Field Name="total"  PropertyName="Total" Type="int" />
+		</ReturnType>
+    
+		<ReturnType Name="Industries" ClassName="Industries" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="JobFunctions" ClassName="JobFunctions" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="CountryGroups" ClassName="CountryGroups" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingCountryGroup" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="Countries" ClassName="Countries" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingCountry" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="States" ClassName="States" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingState" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="Regions" ClassName="Regions" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingRegion" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="Seniorities" ClassName="Seniorities" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="TargetingBase" ClassName="TargetingBase">
+			<Field Name="id"  PropertyName="Id" />
+			<Field Name="name"  PropertyName="Name" Type="Common.MultiLocaleString" />
+			<Field Name="$URN"  PropertyName="Urn" />
+		</ReturnType>
+    
+		<ReturnType Name="TargetingCountryGroup" ClassName="TargetingCountryGroup">
+			<Field Name="countryGroupCode"  PropertyName="CountryGroupCode" />
+			<Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
+			<Field Name="$URN"  PropertyName="Urn" />
+		</ReturnType>
+    
+		<ReturnType Name="TargetingCountry" ClassName="TargetingCountry">
+			<Field Name="countryGroup"  PropertyName="CountryGroup" />
+			<Field Name="countryCode"  PropertyName="CountryCode" />
+			<Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
+			<Field Name="$URN"  PropertyName="Urn" />
+		</ReturnType>
+    
+		<ReturnType Name="TargetingState" ClassName="TargetingState">
+			<Field Name="country"  PropertyName="Country" />
+			<Field Name="stateCode"  PropertyName="StateCode" />
+			<Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
+			<Field Name="$URN"  PropertyName="Urn" />
+		</ReturnType>
+    
+		<ReturnType Name="TargetingRegion" ClassName="TargetingRegion">
+			<Field Name="id"  PropertyName="Id" />
+			<Field Name="country"  PropertyName="Country" />
+			<Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
+			<Field Name="$URN"  PropertyName="Urn" />
+			<Field Name="states"  PropertyName="States" IsCollection="1"/>
+		</ReturnType>
+    
+	</ApiGroup>
+  
+	<ApiGroup Name="Region">
+		<ApiMethod MethodName="GetRegion"
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/regions/{id}"
+             Query="locale.language=en&amp;locale.country=US"
+             ReturnType="Targeting.TargetingRegion"    
+             RequiresUserAuthentication="1"
+             UseFieldSelectors="0"
+             Title="Retrieve standardized region URNs and their names by code"
+             Remark="https://docs.microsoft.com/en-us/linkedin/shared/references/v2/standardized-data/locations/regions"/>
+	</ApiGroup>
+  
+	<ApiGroup Name="Ads">
+		<ApiMethod MethodName="GetAdAnalytics"
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/adAnalyticsV2"
+             Query="q=statistics&amp;pivots[0]=SHARE&amp;dateRange.start.day=&#34; + DateTime.Now.Day + &#34;&amp;dateRange.start.month=&#34; + DateTime.Now.Month + &#34;&amp;dateRange.start.year=&#34; + DateTime.Now.Year + &#34;&amp;timeGranularity=DAILY&amp;shares[0]=urn:li:share:{postId}"
+             ReturnType="AdAnalytics"
+             RequiresUserAuthentication="1"
+             UseFieldSelectors="0"/>
+    
+		<ApiMethod MethodName="GetAdSharePostAnalytics"
+             HttpMethod="POST" RequiresTunneling="1" 
+             Path="/v2/adAnalyticsV2"
+             Query="q=statistics&amp;pivots[0]=SHARE&amp;dateRange.start.day=&#34; + DateTime.Now.Day + &#34;&amp;dateRange.start.month=&#34; + DateTime.Now.Month + &#34;&amp;dateRange.start.year=&#34; + DateTime.Now.Year + &#34;&amp;timeGranularity=DAILY&amp;fields=follows,likes,comments,clicks,actionClicks,adUnitClicks,shares,otherEngagements,totalEngagements,impressions,companyPageClicks,landingPageClicks,viralImpressions,viralTotalEngagements&amp;shares[0]={postId}"
+             ReturnType="AdAnalytics"
+             RequiresUserAuthentication="1"
+             UseFieldSelectors="0"/>
+    
+		<ReturnType Name="AdAnalytics" ClassName="AdAnalytics" AutoGenerateFieldSelectors="1">
+			<Field Name="elements"  PropertyName="Elements" Type="AdAnalyticsElement" IsCollection="1"/>
+			<Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
+		</ReturnType>
+    
+		<ReturnType Name="AdAnalyticsElement" ClassName="AdAnalyticsElement" AutoGenerateFieldSelectors="1">
+			<Field Name="actionClicks" Type="int"/>
+			<Field Name="adUnitClicks" Type="int"/>
+			<Field Name="clicks" Type="int"/>
+			<Field Name="companyPageClicks" Type="int"/>
+			<Field Name="landingPageClicks" Type="int"/>
+			<Field Name="comments" Type="int"/>
+			<Field Name="dateRange" ClassName="DateRange" Type="DateRange"/>
+			<Field Name="follows" Type="int"/>
+			<Field Name="shares" Type="int"/>
+			<Field Name="likes" Type="int"/>
+			<Field Name="totalEngagements" Type="int"/>
+			<Field Name="otherEngagements" Type="int"/>
+			<Field Name="impressions" Type="int"/>
+			<Field Name="viralImpressions" Type="int"/>
+			<Field Name="viralTotalEngagements" Type="int"/>
+		</ReturnType>
+    
+		<ReturnType Name="End" ClassName="End" AutoGenerateFieldSelectors="1">
+			<Field Name="day" Type="int"/>
+			<Field Name="month" Type="int"/>
+			<Field Name="year" Type="int"/>
+		</ReturnType>
+    
+		<ReturnType Name="Start" ClassName="Start" AutoGenerateFieldSelectors="1">
+			<Field Name="day" Type="int"/>
+			<Field Name="month" Type="int"/>
+			<Field Name="year" Type="int"/>
+		</ReturnType>
+    
+		<ReturnType Name="DateRange" ClassName="DateRange" AutoGenerateFieldSelectors="1">
+			<Field Name="end" ClassName="End" Type="End"/>
+			<Field Name="start" ClassName="Start" Type="Start"/>
+		</ReturnType>
+    
+	</ApiGroup>
 
   <ApiGroup Name="Common">
     <ReturnType Name="PostShare">
@@ -1131,8 +1423,8 @@
       <Field Name="text" />
       <Field Name="annotations" Type="PostShareAnnotations" IsCollection="1"/>
     </ReturnType>
-    
-     <ReturnType Name="postShareAnnotations" ClassName="PostShareAnnotations">
+
+    <ReturnType Name="postShareAnnotations" ClassName="PostShareAnnotations">
       <Field Name="entity"/>
       <Field Name="length" Type="int" />
       <Field Name="start" Type="int" />
@@ -1209,23 +1501,22 @@
       <Field Name="staffCountRanges" PropertyName="StaffCountRanges"  IsCollection="1" />
       <Field Name="visibleToGuest" PropertyName="VisibleToGuest"  Type="bool" />
     </ReturnType>
-    
-     <ReturnType Name="LinkedInTargetedEntity" ClassName="LinkedInTargetedEntity">      
+
+    <ReturnType Name="LinkedInTargetedEntity" ClassName="LinkedInTargetedEntity">
       <Field Name="industries" PropertyName="Industries" IsCollection="1" />
       <Field Name="interfaceLocales" PropertyName="InterfaceLocales" Type="Locale" IsCollection="1"/>
       <Field Name="jobFunctions" PropertyName="JobFunctions"  IsCollection="1" />
       <Field Name="locations" PropertyName="Locations"  IsCollection="1" />
       <Field Name="seniorities" PropertyName="Seniorities"  IsCollection="1" />
       <Field Name="staffCountRanges" PropertyName="StaffCountRanges"  IsCollection="1" />
-       
       <Field Name="connectionsOnly" PropertyName="ConnectionsOnly" Type="bool"/>
       <Field Name="visibleToGuest" PropertyName="VisibleToGuest"  Type="bool" />
     </ReturnType>
 
-      <ReturnType Name="Locale" ClassName="Locale">
-        <Field Name="country" PropertyName="Country" />
-        <Field Name="language" PropertyName="Language" />
-      </ReturnType>
+    <ReturnType Name="Locale" ClassName="Locale">
+      <Field Name="country" PropertyName="Country" />
+      <Field Name="language" PropertyName="Language" />
+    </ReturnType>
 
     <ReturnType Name="paging" ClassName="Paging">
       <Field Name="total" PropertyName="Total" Type="int" />
@@ -1245,279 +1536,11 @@
     </ReturnType>
 
     <ReturnType Name="Followers" ClassName="Followers">
-        <Field Name="firstDegreeSize" PropertyName="FirstDegreeSize" Type="int" />
-      </ReturnType>
+      <Field Name="firstDegreeSize" PropertyName="FirstDegreeSize" Type="int" />
+    </ReturnType>
 
     <ReturnType Name="ExternalDistributionChannels" ClassName="ExternalDistributionChannels">
       <Field Name="externalDistributionChannelType" PropertyName="ExternalDistributionChannelType" />
-    </ReturnType>
-    
-  </ApiGroup>
-
-
-  <ApiGroup Name="Targeting">
-    <ApiMethod MethodName="GetIndustries" 
-               HttpMethod="GET" 
-               Path="/v2/industries?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}&amp;" 
-               ReturnType="Industries"
-               Title="Industry taxonomy is used to standardize data across the LinkedIn platform. Use this API to retrieve standardized URNs and their names."
-               RequiresUserAuthentication="1" 
-               UseFieldSelectors="0"
-               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/industries#GET_ALL"/>
-    
-    <ApiMethod MethodName="GetJobFunctions"
-               HttpMethod="GET"
-               Path="/v2/functions?locale={dataLocale}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-               ReturnType="JobFunctions"
-               Title=""
-               RequiresUserAuthentication="1"
-               UseFieldSelectors="0"
-               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/functions   locale e.g.: en_US"/>
-
-    <ApiMethod MethodName="GetCountryGroups"
-               HttpMethod="GET"
-               Path="/v2/countryGroups?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-               ReturnType="CountryGroups"
-               Title=""
-               RequiresUserAuthentication="1"
-               UseFieldSelectors="0"
-               Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/country-groups"/>
-
-    <ApiMethod MethodName="GetCountries"
-                   HttpMethod="GET"
-                   Path="/v2/countries?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={countryGroup}&amp;countryGroup={countryGroupURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-                   ReturnType="Countries"
-                   Title=""
-                   RequiresUserAuthentication="1"
-                   UseFieldSelectors="0"
-                   Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
-
-    <ApiMethod MethodName="GetStates"
-                   HttpMethod="GET"
-                   Path="/v2/states?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={country}&amp;country={countryURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-                   ReturnType="States"
-                   Title=""
-                   RequiresUserAuthentication="1"
-                   UseFieldSelectors="0"
-                   Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
-
-    <ApiMethod MethodName="GetRegions"
-                       HttpMethod="GET"
-                       Path="/v2/regions?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;q={states}&amp;states={statesURN}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-                       ReturnType="Regions"
-                       Title=""
-                       RequiresUserAuthentication="1"
-                       UseFieldSelectors="0"
-                       Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/regions"/>
-
-    <ApiMethod MethodName="GetSeniorities"
-                          HttpMethod="GET"
-                          Path="/v2/seniorities?locale.language={dataLanguage}&amp;locale.country={dataCountry}&amp;count={int Count = 50}&amp;start={int Start = 0}"
-                          ReturnType="Seniorities"
-                          Title=""
-                          RequiresUserAuthentication="1"
-                          UseFieldSelectors="0"
-                          Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/seniorities"/>
-    
-    <ApiMethod MethodName="GetAudienceCounts"
-           HttpMethod="GET"
-           Path="/v2/audienceCountsV2?q=targetingCriteriaV2&amp;targetingCriteria={targetingCriteria}"
-           ReturnType="AudienceCounts"
-           Title="Forecast the reach of the target audience"
-           RequiresUserAuthentication="1"
-           UseFieldSelectors="0"
-           UseRestliProtocol ="1"
-           SkipUrlParamsEscape="targetingCriteria"
-           Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/ads/advertising-targeting/audience-counts"/>
-
-    <ApiMethod MethodName="GetTargetingFacets"
-           HttpMethod="GET"
-           Path="/v2/adTargetingFacets"
-           ReturnType="TargetingFacets"
-           Title="Forecast the reach of your target audience"
-           RequiresUserAuthentication="1"
-           UseFieldSelectors="0"
-           Remark="See https://docs.microsoft.com/en-us/linkedin/marketing/integrations/ads/advertising-targeting/audience-counts"/>
-
-    <ApiMethod MethodName="GetAllCountries"
-                   HttpMethod="GET"
-                   Path="/v2/countries?locale.language={dataLanguage}&amp;locale.country={dataCountry}"
-                   ReturnType="Countries"
-                   Title=""
-                   RequiresUserAuthentication="1"
-                   UseFieldSelectors="0"
-                   Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
-    
-    <ApiMethod MethodName="GetAllStates"
-                   HttpMethod="GET"
-                   Path="/v2/states?locale.language={dataLanguage}&amp;locale.country={dataCountry}"
-                   ReturnType="States"
-                   Title=""
-                   RequiresUserAuthentication="1"
-                   UseFieldSelectors="0"
-                   Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/countries"/>
-
-    <ApiMethod MethodName="GetAllRegions"
-                    HttpMethod="GET"
-                    Path="/v2/regions?locale.language={dataLanguage}&amp;locale.country={dataCountry}"
-                    ReturnType="Regions"
-                    Title=""
-                    RequiresUserAuthentication="1"
-                    UseFieldSelectors="0"
-                    Remark="See https://developer.linkedin.com/docs/ref/v2/standardized-data/locations/regions"/>
-    
-    <ReturnType Name="TargetingFacets" ClassName="TargetingFacets" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="dynamic" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-    
-    <ReturnType Name="AudienceCounts" ClassName="AudienceCounts" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="AudienceCountElements" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="AudienceCountElements" ClassName="AudienceCountElements" AutoGenerateFieldSelectors="1">
-      <Field Name="active"  PropertyName="Active" Type="int"/>
-      <Field Name="total"  PropertyName="Total" Type="int" />
-    </ReturnType>
-
-    <ReturnType Name="Industries" ClassName="Industries" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="JobFunctions" ClassName="JobFunctions" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="CountryGroups" ClassName="CountryGroups" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingCountryGroup" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="Countries" ClassName="Countries" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingCountry" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="States" ClassName="States" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingState" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="Regions" ClassName="Regions" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingRegion" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="Seniorities" ClassName="Seniorities" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="TargetingBase" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="TargetingBase" ClassName="TargetingBase">
-      <Field Name="id"  PropertyName="Id" />
-      <Field Name="name"  PropertyName="Name" Type="Common.MultiLocaleString" />
-      <Field Name="$URN"  PropertyName="Urn" />
-    </ReturnType>
-
-    <ReturnType Name="TargetingCountryGroup" ClassName="TargetingCountryGroup">
-      <Field Name="countryGroupCode"  PropertyName="CountryGroupCode" />
-      <Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
-      <Field Name="$URN"  PropertyName="Urn" />
-    </ReturnType>
-
-    <ReturnType Name="TargetingCountry" ClassName="TargetingCountry">
-      <Field Name="countryGroup"  PropertyName="CountryGroup" />
-      <Field Name="countryCode"  PropertyName="CountryCode" />
-      <Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
-      <Field Name="$URN"  PropertyName="Urn" />
-    </ReturnType>
-
-    <ReturnType Name="TargetingState" ClassName="TargetingState">
-      <Field Name="country"  PropertyName="Country" />
-      <Field Name="stateCode"  PropertyName="StateCode" />
-      <Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
-      <Field Name="$URN"  PropertyName="Urn" />
-    </ReturnType>
-
-    <ReturnType Name="TargetingRegion" ClassName="TargetingRegion">
-      <Field Name="id"  PropertyName="Id" />
-      <Field Name="country"  PropertyName="Country" />
-      <Field Name="name"  PropertyName="Name" Type="Common.LocaleString" />
-      <Field Name="$URN"  PropertyName="Urn" />
-      <Field Name="states"  PropertyName="States" IsCollection="1"/>
-    </ReturnType>
-    
-  </ApiGroup>
-
-
-  <ApiGroup Name="Region">
-    
-    <ApiMethod MethodName="GetRegion"
-             HttpMethod="GET"
-             Path="/v2/regions/{id}?locale.language=en&amp;locale.country=US"
-             ReturnType="Targeting.TargetingRegion"    
-             RequiresUserAuthentication="1"
-             UseFieldSelectors="0"/>
-  
-  </ApiGroup>
-
-
-  <ApiGroup Name="Ads">
-    <ApiMethod MethodName="GetAdAnalytics"
-             HttpMethod="GET"
-             Path="/v2/adAnalyticsV2?q=statistics&amp;pivots[0]=SHARE&amp;dateRange.start.day=&#34; + DateTime.Now.Day + &#34;&amp;dateRange.start.month=&#34; + DateTime.Now.Month + &#34;&amp;dateRange.start.year=&#34; + DateTime.Now.Year + &#34;&amp;timeGranularity=DAILY&amp;shares[0]=urn:li:share:{postId}"
-             ReturnType="AdAnalytics"
-             RequiresUserAuthentication="1"
-             UseFieldSelectors="0"/>
-    
-    <ApiMethod MethodName="GetAdSharePostAnalytics"
-             HttpMethod="GET"
-             Path="/v2/adAnalyticsV2?q=statistics&amp;pivots[0]=SHARE&amp;dateRange.start.day=&#34; + DateTime.Now.Day + &#34;&amp;dateRange.start.month=&#34; + DateTime.Now.Month + &#34;&amp;dateRange.start.year=&#34; + DateTime.Now.Year + &#34;&amp;timeGranularity=DAILY&amp;fields=follows,likes,comments,clicks,actionClicks,adUnitClicks,shares,otherEngagements,totalEngagements,impressions,companyPageClicks,landingPageClicks,viralImpressions,viralTotalEngagements&amp;shares[0]={postId}"
-             ReturnType="AdAnalytics"
-             RequiresUserAuthentication="1"
-             UseFieldSelectors="0"/>
-
-    <ReturnType Name="AdAnalytics" ClassName="AdAnalytics" AutoGenerateFieldSelectors="1">
-      <Field Name="elements"  PropertyName="Elements" Type="AdAnalyticsElement" IsCollection="1"/>
-      <Field Name="paging"  PropertyName="Paging" Type="Common.Paging" />
-    </ReturnType>
-
-    <ReturnType Name="AdAnalyticsElement" ClassName="AdAnalyticsElement" AutoGenerateFieldSelectors="1">
-      <Field Name="actionClicks" Type="int"/>
-      <Field Name="adUnitClicks" Type="int"/>
-      <Field Name="clicks" Type="int"/>
-      <Field Name="companyPageClicks" Type="int"/>
-      <Field Name="landingPageClicks" Type="int"/>
-      <Field Name="comments" Type="int"/>
-      <Field Name="dateRange" ClassName="DateRange" Type="DateRange"/>
-      <Field Name="follows" Type="int"/>
-      <Field Name="shares" Type="int"/>
-      <Field Name="likes" Type="int"/>
-      <Field Name="totalEngagements" Type="int"/>
-      <Field Name="otherEngagements" Type="int"/>
-      <Field Name="impressions" Type="int"/>
-      <Field Name="viralImpressions" Type="int"/>
-      <Field Name="viralTotalEngagements" Type="int"/>
-    </ReturnType>
-
-    <ReturnType Name="End" ClassName="End" AutoGenerateFieldSelectors="1">
-      <Field Name="day" Type="int"/>
-      <Field Name="month" Type="int"/>
-      <Field Name="year" Type="int"/>
-    </ReturnType>
-
-    <ReturnType Name="Start" ClassName="Start" AutoGenerateFieldSelectors="1">
-      <Field Name="day" Type="int"/>
-      <Field Name="month" Type="int"/>
-      <Field Name="year" Type="int"/>
-    </ReturnType>
-
-    <ReturnType Name="DateRange" ClassName="DateRange" AutoGenerateFieldSelectors="1">
-      <Field Name="end" ClassName="End" Type="End"/>
-      <Field Name="start" ClassName="Start" Type="Start"/>
     </ReturnType>
 
   </ApiGroup>
